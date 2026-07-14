@@ -1,0 +1,27 @@
+{
+  "name": "majorproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./start.sh",
+    "dev": "concurrently \"nodemon app.js\" \"nodemon classroom/server.js --watch classroom --ext js,ejs\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "ejs": "^3.1.10",
+    "ejs-mate": "^4.0.0",
+    "express": "^4.22.1",
+    "joi": "^18.1.2",
+    "method-override": "^3.0.0",
+    "mongoose": "^7.8.9"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.3",
+    "nodemon": "^3.1.14"
+  }
+}

@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Local MongoDB binaries and data
+mongodb-macos-aarch64--*/
+mongodb-data/
+*.log
+
+# Environment-specific configuration
+.env
+.env.*
+!.env.example
+
+# Operating system files
+.DS_Store
+
+# Editor settings
+.vscode/
+.idea/
