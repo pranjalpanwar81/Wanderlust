@@ -9,6 +9,8 @@ const wrapAsync = require("./utils/wrapAsync.js");
 const ExpressError = require("./utils/ExpressError.js");
 const { listingSchema , reviewSchema } = require("./schema.js");
 const Review = require("./models/review.js");
+const session = require("express-session");
+const flash = require("connect-flash");
 
 const listings = require("./routes/listing.js");
 const reviews = require("./routes/review.js");
@@ -52,6 +54,26 @@ const normalizeListing = (listing) => {
 };
 app.use(express.static(path.join(__dirname, "public")));
 
+const sessionOptions = {
+  secret: "mysupersecretcode",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7, // 1 week
+    maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+  },
+};
+
+app.use(session(sessionOptions));
+app.use(flash());
+
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  next();
+});
+
 app.get("/", (req, res) => {
   res.send("Hi, I am root");
 });
@@ -69,6 +91,29 @@ app.use((err, req, res, next) => {
   // res.status(statusCode).send(message);
 });
 
-app.listen(8080, () => {
-  console.log("server is listening to port 8080");
-});
+// Start server with retry on EADDRINUSE to avoid crashes during rapid restarts
+function listenWithRetry(appInstance, port, name = "server", maxRetries = 10, delay = 500) {
+  let attempts = 0;
+  function start() {
+    attempts++;
+    const srv = appInstance.listen(port, () => {
+      console.log(`${name} is listening to port ${port}`);
+    });
+    srv.on("error", (err) => {
+      if (err && err.code === "EADDRINUSE") {
+        console.error(`${name} port ${port} in use (attempt ${attempts}/${maxRetries}). Retrying in ${delay}ms...`);
+        srv.close();
+        if (attempts < maxRetries) {
+          setTimeout(start, delay);
+        } else {
+          console.error(`${name} failed to start after ${maxRetries} attempts.`);
+        }
+      } else {
+        console.error(`${name} encountered error:`, err);
+      }
+    });
+  }
+  start();
+}
+
+listenWithRetry(app, 8080, "main app");

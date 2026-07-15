@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+        <% if (typeof success !== 'undefined' && success && success.length) { %>
+            <div class="alert alert-success"><%= success %></div>
+        <% } %>
+        <% if (typeof error !== 'undefined' && error && error.length) { %>
+            <div class="alert alert-danger"><%= error %></div>
+        <% } %>
+        <h1>Hello, <%= name %></h1>
+</body>
+</html>

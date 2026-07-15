@@ -1,4 +1,7 @@
 <% layout("layouts/boilerplate") %>
+<% if (typeof success !== 'undefined' && success && success.length) { %>
+  <div class="alert alert-success"><%= success %></div>
+<% } %>
 <body>
   <h3>All Listings</h3>
   <!-- <form method="GET" action="/listings/new">
