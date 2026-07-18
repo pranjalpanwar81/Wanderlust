@@ -123,6 +123,17 @@ app.use((err, req, res, next) => {
   // res.status(statusCode).send(message);
 });
 
-app.listen(8080, () => {
-  console.log("main app is listening to port 8080");
+const PORT = 8080;
+
+const server = app.listen(PORT, () => {
+  console.log(`main app is listening to port ${PORT}`);
+});
+
+server.on("error", (err) => {
+  if (err && err.code === "EADDRINUSE") {
+    console.error(`Port ${PORT} is already in use. Stop the other server and try again.`);
+    return;
+  }
+
+  console.error("main app encountered error:", err);
 });
