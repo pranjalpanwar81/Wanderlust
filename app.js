@@ -11,9 +11,13 @@ const { listingSchema , reviewSchema } = require("./schema.js");
 const Review = require("./models/review.js");
 const session = require("express-session");
 const flash = require("connect-flash");
+const passport = require("passport");
+const LocalStrategy = require("passport-local").Strategy;
+const User = require("./models/user.js");
 
-const listings = require("./routes/listing.js");
-const reviews = require("./routes/review.js");
+const listingRouter = require("./routes/listing.js");
+const reviewrouter = require("./routes/review.js");
+const userRouter = require("./routes/user.js");
 
 const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
 
@@ -68,18 +72,46 @@ const sessionOptions = {
 app.use(session(sessionOptions));
 app.use(flash());
 
+
+app.use(passport.initialize());
+app.use(passport.session());
+passport.use(new LocalStrategy(User.authenticate()));
+passport.serializeUser(User.serializeUser());
+passport.deserializeUser(User.deserializeUser());
+
 app.use((req, res, next) => {
   res.locals.success = req.flash("success");
   res.locals.error = req.flash("error");
   next();
 });
 
+
+app.get("/demouser", async (req, res, next) => {
+  try {
+    const existingUser = await User.findOne({ username: "demouser" });
+    if (existingUser) {
+      return res.send("Demo user already exists");
+    }
+
+    const fakeUser = new User({
+      email: "student@gmail.com",
+      username: "demouser",
+    });
+    await User.register(fakeUser, "helloworld");
+    res.send("Demo user created");
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.get("/", (req, res) => {
   res.send("Hi, I am root");
 });
 
-app.use("/listings/:id/reviews", reviews);
-app.use("/listings", listings);
+app.use("/listings/:id/reviews", reviewrouter);
+app.use("/listings", listingRouter);
+app.use("/users", userRouter);
+app.use("/", userRouter);
 
 app.all("*", (req, res, next) => {
   next(new ExpressError("Page Not Found", 404));
@@ -91,29 +123,6 @@ app.use((err, req, res, next) => {
   // res.status(statusCode).send(message);
 });
 
-// Start server with retry on EADDRINUSE to avoid crashes during rapid restarts
-function listenWithRetry(appInstance, port, name = "server", maxRetries = 10, delay = 500) {
-  let attempts = 0;
-  function start() {
-    attempts++;
-    const srv = appInstance.listen(port, () => {
-      console.log(`${name} is listening to port ${port}`);
-    });
-    srv.on("error", (err) => {
-      if (err && err.code === "EADDRINUSE") {
-        console.error(`${name} port ${port} in use (attempt ${attempts}/${maxRetries}). Retrying in ${delay}ms...`);
-        srv.close();
-        if (attempts < maxRetries) {
-          setTimeout(start, delay);
-        } else {
-          console.error(`${name} failed to start after ${maxRetries} attempts.`);
-        }
-      } else {
-        console.error(`${name} encountered error:`, err);
-      }
-    });
-  }
-  start();
-}
-
-listenWithRetry(app, 8080, "main app");
+app.listen(8080, () => {
+  console.log("main app is listening to port 8080");
+});
