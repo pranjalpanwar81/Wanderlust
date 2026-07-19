@@ -18,6 +18,13 @@ router.post("/signup", wrapAsync(async (req, res) => {
     let newUser = new User({ email, username });
     const registeredUser = await User.register(newUser, password);
     console.log(registeredUser);
+    req.login(registeredUser, (err) => {
+        if (err) {
+            console.error(err);
+            req.flash("error", "Error logging in after signup. Please try logging in.");
+            return res.redirect("/login");
+        }
+    });
     req.flash("success", "Successfully signed up! Welcome to Wanderlust!");
     res.redirect("/listings");
     }

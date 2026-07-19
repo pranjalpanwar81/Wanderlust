@@ -18,10 +18,11 @@ module.exports = {
       req.flash("error", "Listing not found.");
       return res.redirect("/listings");
     }
-    if (!listing.author) {
+    const ownerId = listing.owner || listing.author;
+    if (!ownerId) {
       return next();
     }
-    if (!listing.author.equals(req.user._id)) {
+    if (!ownerId.equals(req.user._id)) {
       req.flash("error", "You do not have permission to do that.");
       return res.redirect(`/listings/${id}`);
     }
