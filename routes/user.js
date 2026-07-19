@@ -39,6 +39,16 @@ router.post(
     }
 );
  
-
+router.get("/logout", (req, res) => {
+    req.logout((err) => {
+        if (err) {
+            console.error(err);
+            req.flash("error", "Error logging out. Please try again.");
+            return res.redirect("/listings");
+        }
+        req.flash("success", "Successfully logged out!");
+        res.redirect("/listings");
+    }   );
+});
 
 module.exports = router;
