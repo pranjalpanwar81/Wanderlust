@@ -1,0 +1,24 @@
+<% layout("layouts/boilerplate") %>
+
+<div class="row mt-2">
+  <div class="col-8 offset-2">
+    <br /><br />
+
+    <h3>Edit Review for <%= listing.title %></h3>
+    <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=PUT" novalidate class="needs-validation">
+      <div class="mb-3 mt-3">
+        <label for="rating" class="form-label">Rating</label>
+        <input type="range" id="rating" name="review[rating]" min="1" max="5" value="<%= review.rating %>" required>
+      </div>
+      <div class="mb-3 mt-3">
+        <label for="comment" class="form-label">Comment</label>
+        <textarea id="comment" name="review[comment]" rows="5" cols="30" class="form-control" required><%= review.comment %></textarea>
+        <div class="invalid-feedback">Please add some comments for review</div>
+      </div>
+      <button type="submit" class="btn btn-dark mt-3">Update Review</button>
+      <a class="btn btn-outline-dark mt-3" href="/listings/<%= listing._id %>">Cancel</a>
+    </form>
+  </div>
+</div>
+  </body>
+</html>

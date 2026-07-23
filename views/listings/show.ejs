@@ -2,69 +2,103 @@
 <div class="row">
   <div class="col-8 offset-3">
     <br><br>
-    <h3><%= listing.title %></h3>
+    <div class="show-hero">
+      <span class="show-kicker">Listing details</span>
+      <h3><%= listing.title %></h3>
+      <p class="text-muted mb-0">Explore the details, read the reviews, and decide if this stay is the right fit.</p>
+    </div>
     <br>
-  </div>  
+  </div>
 
-    <div class="card col-6 offset-3 show-card listing-card">
+    <div class="card col-6 offset-3 show-card listing-card show-listing-panel">
       <img src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60' %>" class="card-img-top show-img" alt="listing_image"/> <br>
-  <div class="card-body">
-    <p class="card-text mb-2"><strong>Owned By :-</strong> <%= listing.owner && listing.owner.username ? listing.owner.username : "Unknown" %></p>
-    <p class="card-text mb-2"><b><%= listing.title %></b></p>
-    <p class="card-text mb-2"><%= listing.description %></p>
-    <p class="card-text mb-2">&#8377; <%= listing.price.toLocaleString("en-IN") %></p>
-    <p class="card-text mb-2"><%= listing.location %></p>
-    <p class="card-text mb-2"><%= listing.country %></p>
+  <div class="card-body show-listing-body">
+    <div class="show-detail-row">
+      <span class="show-detail-label">Owned by</span>
+      <span class="show-detail-value"><%= listing.owner && listing.owner.username ? listing.owner.username : "Unknown" %></span>
+    </div>
+    <p class="card-text show-description"><%= listing.description %></p>
+    <div class="show-chip-row">
+      <span class="show-chip">&#8377; <%= listing.price.toLocaleString("en-IN") %></span>
+      <span class="show-chip"><%= listing.location %></span>
+      <span class="show-chip"><%= listing.country %></span>
+    </div>
   </div>
   </div>
 
     <br />
 
-  <div class="btns mb-5">
-      <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
-    
-      <form method="POST" action="/listings/<%=listing._id%>?_method=DELETE">
-      <button class="btn btn-dark offset-5 ">Delete</button>
-    </form>
-  </div>
-  <div class="col-8 offset-3 mb-5 ">
+  <% if (currentUser && listing.owner && listing.owner._id && currentUser._id.toString() === listing.owner._id.toString()) { %>
+    <div class="btns mb-5">
+        <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
+      
+        <form method="POST" action="/listings/<%=listing._id%>?_method=DELETE">
+        <button class="btn btn-dark offset-5 ">Delete</button>
+      </form>
+    </div>
+  <% } %>
+  <div class="col-8 offset-3 mb-5 review-section-shell">
     <hr> 
-    <h4>Leave a Review</h4>
-    <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation" >
-      <div class="mb-3 mt-3">
-        <label for="rating" class="form-label">Rating</label>
-        <input type="range" id="rating" name="review[rating]" min="1" max="5" required>
+    <div class="review-section-head">
+      <h4>Leave a Review</h4>
+      <p class="text-muted mb-0">Share your experience so other travelers can decide faster.</p>
+    </div>
+    <% if (currentUser) { %>
+      <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation review-form-card" >
+        <div class="mb-3 mt-3">
+          <label for="rating" class="form-label">Rating</label>
+          <input type="range" id="rating" name="review[rating]" min="1" max="5" required>
+        </div>
+        <div class="mb-3 mt-3">
+          <label for="comment" class="form-label">Comment</label>
+          <textarea id="comment" name="review[comment]" rows="5"  cols="30" class = "form-control"  required></textarea>
+          <div class="invalid-feedback">Please add some comments for review</div>
+        </div>
+        <button type="submit" class="btn btn-dark mt-3">Submit Review</button>
+      </form>
+    <% } else { %>
+      <div class="guest-review-card">
+        <p class="text-muted mb-0">Please log in to leave a review.</p>
       </div>
-      <div class="mb-3 mt-3">
-        <label for="comment" class="form-label">Comment</label>
-        <textarea id="comment" name="review[comment]" rows="5"  cols="30" class = "form-control"  required></textarea>
-        <div class="invalid-feedback">Please add some comments for review</div>
-      </div>
-      <button type="submit" class="btn btn-dark mt-3">Submit Review</button>
-    </form>
+    <% } %>
 
     <hr />
 
-    <p><b>All Reviews</b></p>
+    <div class="review-section-head">
+      <p class="mb-0"><b>All Reviews (<%= listing.reviews.length %>)</b></p>
+      <span class="review-section-note">Visible to everyone</span>
+    </div>
 
     <div class="row">
-
-    <% for(review of listing.reviews) { %>
-      <div class="listing-card col-6 mb-3">
-        <div class="card-body">
-          <h5 class="card-title">
-            Jane Doe
-          </h5>
-          <p class="card-text">
-            <%= review.comment %>
-          </p>
-          <p class="card-text">
-            <%= review.rating %> stars
-          </p>
+    <% if (listing.reviews.length > 0) { %>
+      <% for(review of listing.reviews) { %>
+        <div class="col-6 mb-3">
+          <div class="review-card">
+            <div class="review-meta">
+              <h5 class="review-author">
+                <%= review.author && review.author.username ? review.author.username : "Anonymous" %>
+              </h5>
+              <span class="review-rating"><%= review.rating %> / 5</span>
+            </div>
+            <p class="review-comment mb-0">
+              <%= review.comment %>
+            </p>
+            <% if (currentUser && listing.owner && listing.owner._id && currentUser._id.toString() === listing.owner._id.toString()) { %>
+              <div class="review-actions mb-0 d-flex gap-2">
+                <a class="btn btn-dark" href="/listings/<%=listing._id%>/reviews/<%=review._id%>/edit">Edit</a>
+                <form method="POST" action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE">
+                  <button class="btn btn-dark">Delete</button>
+                </form>
+              </div>
+            <% } %>
+          </div>
         </div>
-        <form class="mb-3" method="POST" action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE">
-          <button class="btn btn-dark">Delete</button>
-        </form>
+      <% } %>
+    <% } else { %>
+      <div class="col-12">
+        <div class="guest-review-card">
+          <p class="text-muted mb-0">No reviews yet. Be the first to review this listing.</p>
+        </div>
       </div>
     <% } %>
 </div>

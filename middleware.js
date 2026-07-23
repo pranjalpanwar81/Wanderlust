@@ -28,14 +28,15 @@ module.exports = {
     }
     next();
   },
-  isReviewAuthor: async (req, res, next) => {
-    const { id, reviewId } = req.params;
-    const review = await Review.findById(reviewId);
-    if (!review) {
-      req.flash("error", "Review not found.");
-      return res.redirect(`/listings/${id}`);
+  isReviewOwner: async (req, res, next) => {
+    const { id } = req.params;
+    const listing = await Listing.findById(id);
+    if (!listing) {
+      req.flash("error", "Listing not found.");
+      return res.redirect("/listings");
     }
-    if (!review.author.equals(req.user._id)) {
+    const ownerId = listing.owner || listing.author;
+    if (!ownerId || !ownerId.equals(req.user._id)) {
       req.flash("error", "You do not have permission to do that.");
       return res.redirect(`/listings/${id}`);
     }
