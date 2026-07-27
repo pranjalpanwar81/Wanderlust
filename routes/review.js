@@ -7,6 +7,8 @@ const Review = require("../models/review.js");
 const Listing = require("../models/listing.js");
 const { isLoggedIn, isReviewOwner } = require("../middleware.js");
 
+const reviewController = require("../controllers/reviews.js");
+
 const validateReview = (req, res, next) => {
   if (!req.body || !req.body.review) {
     return next(new ExpressError("Review data is missing", 400));
@@ -21,21 +23,7 @@ const validateReview = (req, res, next) => {
 
 //Reviews
 //Post Route for reviews
-router.post("/", isLoggedIn, validateReview,  wrapAsync(async (req, res) => {
-  let listing = await Listing.findById(req.params.id);
-  if (!listing) {
-    throw new ExpressError("Listing not found", 404);
-  }
-  let newReview = new Review(req.body.review);
-  newReview.author = req.user._id;
-  listing.reviews.push(newReview);
-  await newReview.save();
-  await listing.save();
-
-  req.flash("success", "Review created successfully!");
-
-  res.redirect(`/listings/${listing._id}`);
-}));
+router.post("/", isLoggedIn, validateReview, wrapAsync(reviewController.createReview));
 
 //Edit Route for reviews
 router.get("/:reviewId/edit", isLoggedIn, isReviewOwner, wrapAsync(async (req, res) => {
@@ -59,11 +47,6 @@ router.put("/:reviewId", isLoggedIn, isReviewOwner, validateReview, wrapAsync(as
 }));
 
 //Delete Route for reviews
-router.delete("/:reviewId", isLoggedIn, isReviewOwner, wrapAsync(async (req, res) => {
-  let { id, reviewId } = req.params;
-  await Listing.findByIdAndUpdate(id, { $pull: { reviews: reviewId } });
-  await Review.findByIdAndDelete(reviewId);
-  res.redirect(`/listings/${id}`);
-}));
+router.delete("/:reviewId", isLoggedIn, isReviewOwner, wrapAsync(reviewController.deleteReview));
 
 module.exports = router;
