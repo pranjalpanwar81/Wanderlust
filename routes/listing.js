@@ -7,8 +7,7 @@ const {isLoggedIn, isAuthor, validateListing} = require("../middleware.js");
 
 const listingController = require("../controllers/listings.js");
 
-// Normalize listing payload: remove empty image.url so mongoose uses default
-// and keep this helper local to the routes module.
+// Normalize listing payload: remove empty image.url so mongoose uses default and keep this helper local to the routes module.
 const normalizeListing = (listing) => {
   if (!listing) return listing;
   if (listing.image && typeof listing.image.url === "string" && !listing.image.url.trim()) {
@@ -17,26 +16,21 @@ const normalizeListing = (listing) => {
   return listing;
 };
 
-//Index Route
-router.get("/", wrapAsync(listingController.index));
+router
+    .route("/")
+    .get(wrapAsync(listingController.index))
+    .post(isLoggedIn, validateListing, wrapAsync(listingController.createListing));
 
 //New Route
 router.get("/new",isLoggedIn, listingController.renderNewForm);
 
-//Show Route
-router.get("/:id", wrapAsync(listingController.showListing));
-
-//Create Route
-router.post("/", isLoggedIn, validateListing, wrapAsync(listingController.createListing));
+router
+    .route("/:id")
+    .get(wrapAsync(listingController.showListing))
+    .put(isLoggedIn, isAuthor, validateListing, wrapAsync(listingController.updateListing))
+    .delete(isLoggedIn, isAuthor, wrapAsync(listingController.deleteListing));
 
 //Edit Route
 router.get("/:id/edit",isLoggedIn, isAuthor, wrapAsync(listingController.renderEditForm));
-
-//Update Route
-router.put("/:id", isLoggedIn, isAuthor, validateListing, wrapAsync(listingController.updateListing));
-
-//Delete Route
-router.delete("/:id", isLoggedIn, isAuthor, wrapAsync(listingController.deleteListing));
-
 
 module.exports = router;
