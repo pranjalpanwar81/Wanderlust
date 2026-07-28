@@ -48,14 +48,6 @@ app.use(methodOverride(function (req, res) {
   }
 }));
 app.engine("ejs", ejsMate);
-
-const normalizeListing = (listing) => {
-  if (!listing) return listing;
-  if (listing.image && typeof listing.image.url === "string" && !listing.image.url.trim()) {
-    delete listing.image;
-  }
-  return listing;
-};
 app.use(express.static(path.join(__dirname, "public")));
 
 const sessionOptions = {

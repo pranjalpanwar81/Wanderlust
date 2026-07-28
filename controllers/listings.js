@@ -1,4 +1,5 @@
 const Listing = require("../models/listing");
+const normalizeListing = require("../utils/normalizeListing.js");
 
 module.exports.index = async (req, res) => {
   const allListings = await Listing.find({});

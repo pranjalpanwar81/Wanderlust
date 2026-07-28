@@ -6,10 +6,14 @@
 
     <h3>Edit Review for <%= listing.title %></h3>
     <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=PUT" novalidate class="needs-validation">
-      <div class="mb-3 mt-3">
-        <label for="rating" class="form-label">Rating</label>
-        <input type="range" id="rating" name="review[rating]" min="1" max="5" value="<%= review.rating %>" required>
-      </div>
+      <fieldset class="starability-growRotate">
+        <legend>Rating:</legend>
+        <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" aria-label="No rating." <%= review.rating ? "" : "checked" %> />
+        <% for (let i = 1; i <= 5; i++) { %>
+          <input type="radio" id="first-rate<%= i %>" name="review[rating]" value="<%= i %>" <%= review.rating === i ? "checked" : "" %> />
+          <label for="first-rate<%= i %>"><%= i %> star<%= i > 1 ? "s" : "" %></label>
+        <% } %>
+      </fieldset>
       <div class="mb-3 mt-3">
         <label for="comment" class="form-label">Comment</label>
         <textarea id="comment" name="review[comment]" rows="5" cols="30" class="form-control" required><%= review.comment %></textarea>
