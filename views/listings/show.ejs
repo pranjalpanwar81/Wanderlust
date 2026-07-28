@@ -94,7 +94,7 @@
             <p class="review-comment mb-0">
               <%= review.comment %>
             </p>
-            <% if (currentUser && listing.owner && listing.owner._id && currentUser._id.toString() === listing.owner._id.toString()) { %>
+            <% if (currentUser && review.author && review.author._id && currentUser._id.toString() === review.author._id.toString()) { %>
               <div class="review-actions mb-0 d-flex gap-2">
                 <a class="btn btn-dark" href="/listings/<%=listing._id%>/reviews/<%=review._id%>/edit">Edit</a>
                 <form method="POST" action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE">
