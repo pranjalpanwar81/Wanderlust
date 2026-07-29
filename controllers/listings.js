@@ -19,7 +19,16 @@ module.exports.showListing = async (req, res) => {
 };
 
 module.exports.createListing = async (req, res, next) => {
-  const newListing = new Listing(normalizeListing(req.body.listing));
+  let listingData = req.body.listing;
+  
+  // If a file was uploaded, use its path as the image URL
+  if (req.file) {
+    listingData.image = {
+      url: `/uploads/${req.file.filename}`
+    };
+  }
+  
+  const newListing = new Listing(normalizeListing(listingData));
   newListing.owner = req.user._id;
   newListing.author = req.user._id;
   await newListing.save();
@@ -35,8 +44,18 @@ module.exports.renderEditForm = async (req, res) => {
 
 module.exports.updateListing = async (req, res) => {
   let { id } = req.params;
-  const updatedListing = normalizeListing(req.body.listing);
+  let listing = req.body.listing;
+  
+  // If a file was uploaded, use its path as the image URL
+  if (req.file) {
+    listing.image = {
+      url: `/uploads/${req.file.filename}`
+    };
+  }
+  
+  const updatedListing = normalizeListing(listing);
   await Listing.findByIdAndUpdate(id, { ...updatedListing }, { new: true, runValidators: true });
+  req.flash("success", "Listing updated successfully!");
   res.redirect(`/listings/${id}`);
 };
 

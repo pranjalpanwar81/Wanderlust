@@ -4,13 +4,14 @@ const wrapAsync = require("../utils/wrapAsync.js");
 const ExpressError = require("../utils/ExpressError.js");
 const Listing = require("../models/listing.js");
 const {isLoggedIn, isAuthor, validateListing} = require("../middleware.js");
+const { upload } = require("../app.js");
 
 const listingController = require("../controllers/listings.js");
 
 router
     .route("/")
     .get(wrapAsync(listingController.index))
-    .post(isLoggedIn, validateListing, wrapAsync(listingController.createListing));
+    .post(isLoggedIn, upload.single('listing[image]'), validateListing, wrapAsync(listingController.createListing));
 
 //New Route
 router.get("/new",isLoggedIn, listingController.renderNewForm);
@@ -18,7 +19,7 @@ router.get("/new",isLoggedIn, listingController.renderNewForm);
 router
     .route("/:id")
     .get(wrapAsync(listingController.showListing))
-    .put(isLoggedIn, isAuthor, validateListing, wrapAsync(listingController.updateListing))
+    .put(isLoggedIn, isAuthor, upload.single('listing[image]'), validateListing, wrapAsync(listingController.updateListing))
     .delete(isLoggedIn, isAuthor, wrapAsync(listingController.deleteListing));
 
 //Edit Route
