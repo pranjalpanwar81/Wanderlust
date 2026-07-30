@@ -42,9 +42,38 @@ module.exports = {
     next();
   },
   validateListing: (req, res, next) => {
+    console.log("validateListing - req.body before:", req.body);
+    console.log("validateListing - req.file:", req.file);
+    
+    // If a file is being uploaded, add its path to the body for validation
+    if (req.file) {
+      if (!req.body.listing) {
+        req.body.listing = {};
+      }
+      if (req.file.path) {
+        // Cloudinary upload
+        req.body.listing.image = {
+          url: req.file.path
+        };
+      } else if (req.file.filename) {
+        // Local storage upload
+        req.body.listing.image = {
+          url: `/uploads/${req.file.filename}`
+        };
+      }
+    }
+    
+    // If no image provided (no file and no URL), remove the field
+    if (req.body.listing && (!req.body.listing.image || !req.body.listing.image.url)) {
+      delete req.body.listing.image;
+    }
+    
+    console.log("validateListing - req.body after:", req.body);
+    
     const { error } = listingSchema.validate(req.body);
     if (error) {
       const msg = error.details.map((el) => el.message).join(",");
+      console.log("Validation error:", msg);
       throw new ExpressError(msg, 400);
     }
     next();

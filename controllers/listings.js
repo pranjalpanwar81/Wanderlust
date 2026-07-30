@@ -19,21 +19,40 @@ module.exports.showListing = async (req, res) => {
 };
 
 module.exports.createListing = async (req, res, next) => {
-  let listingData = req.body.listing;
-  
-  // If a file was uploaded, use its path as the image URL
-  if (req.file) {
-    listingData.image = {
-      url: `/uploads/${req.file.filename}`
-    };
+  try {
+    console.log("req.body.listing:", req.body.listing);
+    console.log("Listing Schema paths:", Listing.schema.paths);
+    console.log("req.file:", req.file);
+    
+    let listingData = req.body.listing;
+    
+    // If a file was uploaded, use its path as the image URL
+    if (req.file) {
+      if (req.file.path) {
+        // Cloudinary upload
+        listingData.image = {
+          url: req.file.path
+        };
+      } else if (req.file.filename) {
+        // Local storage upload
+        listingData.image = {
+          url: `/uploads/${req.file.filename}`
+        };
+      }
+    }
+    
+    console.log("listingData after file check:", listingData);
+    
+    const newListing = new Listing(normalizeListing(listingData));
+    newListing.owner = req.user._id;
+    newListing.author = req.user._id;
+    await newListing.save();
+    req.flash("success", "Listing created successfully!");
+    res.redirect("/listings");
+  } catch (err) {
+    console.error("Error in createListing:", err);
+    next(err);
   }
-  
-  const newListing = new Listing(normalizeListing(listingData));
-  newListing.owner = req.user._id;
-  newListing.author = req.user._id;
-  await newListing.save();
-  req.flash("success", "Listing created successfully!");
-  res.redirect("/listings");
 };
 
 module.exports.renderEditForm = async (req, res) => {
@@ -48,9 +67,17 @@ module.exports.updateListing = async (req, res) => {
   
   // If a file was uploaded, use its path as the image URL
   if (req.file) {
-    listing.image = {
-      url: `/uploads/${req.file.filename}`
-    };
+    if (req.file.path) {
+      // Cloudinary upload
+      listing.image = {
+        url: req.file.path
+      };
+    } else if (req.file.filename) {
+      // Local storage upload
+      listing.image = {
+        url: `/uploads/${req.file.filename}`
+      };
+    }
   }
   
   const updatedListing = normalizeListing(listing);

@@ -13,12 +13,8 @@ const listingSchema = new Schema({
   description: String,
 
   image: {
+    url: String,
     filename: String,
-    url: {
-      type: String,
-      default: defaultImageUrl,
-      set: (value) => (value === "" ? undefined : value),
-    },
   },
 
   price: Number,
