@@ -267,3 +267,8 @@ Footer{
     color: #374151;
     line-height: 1.7;
 }
+
+#map {
+    height: 400px;
+    width: 100%;
+}
