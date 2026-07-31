@@ -1,5 +1,9 @@
 const Listing = require("../models/listing");
 const normalizeListing = require("../utils/normalizeListing.js");
+const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+const mapToken = process.env.MAP_TOKEN;
+const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+
 
 module.exports.index = async (req, res) => {
   const allListings = await Listing.find({});
@@ -15,11 +19,19 @@ module.exports.showListing = async (req, res) => {
   const listing = await Listing.findById(id)
     .populate("owner")
     .populate({ path: "reviews", populate: { path: "author" } });
+  console.log("=== SHOW LISTING ===");
+  console.log("Listing ID:", id);
+  console.log("Listing location:", listing.location);
+  console.log("Listing country:", listing.country);
+  console.log("Listing geometry:", listing.geometry);
+  console.log("Listing coordinates:", listing.geometry ? listing.geometry.coordinates : "No geometry");
   res.render("listings/show.ejs", { listing });
 };
 
 module.exports.createListing = async (req, res, next) => {
   try {
+    console.log("=== CREATE LISTING STARTED ===");
+    console.log("Full req.body:", req.body);
     console.log("req.body.listing:", req.body.listing);
     console.log("Listing Schema paths:", Listing.schema.paths);
     console.log("req.file:", req.file);
@@ -42,6 +54,31 @@ module.exports.createListing = async (req, res, next) => {
     }
     
     console.log("listingData after file check:", listingData);
+    console.log("Location:", listingData.location);
+    console.log("Country:", listingData.country);
+    
+    // Geocode the location to get coordinates
+    let response = await geocodingClient
+      .forwardGeocode({
+        query: `${listingData.location}, ${listingData.country}`,
+        limit: 1
+      })
+      .send();
+    
+    if (response.body.features && response.body.features.length > 0) {
+      listingData.geometry = {
+        type: 'Point',
+        coordinates: response.body.features[0].geometry.coordinates
+      };
+      console.log("Geocoded coordinates:", listingData.geometry);
+      console.log("Geocoded location name:", response.body.features[0].place_name);
+    } else {
+      console.log("Geocoding failed, no features found. Using default coordinates.");
+      listingData.geometry = {
+        type: 'Point',
+        coordinates: [77.2090, 28.6139] // Default to Delhi coordinates
+      };
+    }
     
     const newListing = new Listing(normalizeListing(listingData));
     newListing.owner = req.user._id;
@@ -76,6 +113,33 @@ module.exports.updateListing = async (req, res) => {
       // Local storage upload
       listing.image = {
         url: `/uploads/${req.file.filename}`
+      };
+    }
+  }
+  
+  // Geocode the location to get coordinates if location or country changed
+  if (listing.location || listing.country) {
+    const existingListing = await Listing.findById(id);
+    const locationToGeocode = listing.location || existingListing.location;
+    const countryToGeocode = listing.country || existingListing.country;
+    
+    let response = await geocodingClient
+      .forwardGeocode({
+        query: `${locationToGeocode}, ${countryToGeocode}`,
+        limit: 1
+      })
+      .send();
+    
+    if (response.body.features && response.body.features.length > 0) {
+      listing.geometry = {
+        type: 'Point',
+        coordinates: response.body.features[0].geometry.coordinates
+      };
+    } else {
+      console.log("Geocoding failed, no features found. Using default coordinates.");
+      listing.geometry = {
+        type: 'Point',
+        coordinates: [77.2090, 28.6139] // Default to Delhi coordinates
       };
     }
   }
