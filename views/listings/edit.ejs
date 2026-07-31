@@ -21,9 +21,20 @@
       </div>
 
       <div class="mb-3">
-        <lable for="image" class="form-label">Image Link</lable>
-        <input name="listing[image][url]" value="<%= listing.image.url %>" type="text" class="form-control"/>
-        <div class="invalid-feedback">Please enter a valid image link</div>
+        <lable class="form-label">Current Image</lable>
+        <br>
+        <% if (listing.image && listing.image.url) { %>
+          <% 
+            let previewUrl = listing.image.url;
+            // Add Cloudinary transformation for basic preview (width 300, quality 60)
+            if (previewUrl.includes('cloudinary.com')) {
+              previewUrl = previewUrl.replace('/image/upload/', '/image/upload/w_300,q_60/');
+            }
+          %>
+          <img src="<%= previewUrl %>" alt="Current listing image" class="img-fluid" style="max-height: 150px; max-width: 100%; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
+        <% } else { %>
+          <p class="text-muted">No image currently set</p>
+        <% } %>
       </div>
 
       <div class="mb-3">
