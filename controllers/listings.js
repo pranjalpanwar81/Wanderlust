@@ -6,8 +6,33 @@ const geocodingClient = mbxGeocoding({ accessToken: mapToken });
 
 
 module.exports.index = async (req, res) => {
-  const allListings = await Listing.find({});
-  res.render("listings/index.ejs", { allListings });
+  const filter = req.query.filter || 'all';
+  const sortBy = req.query.sortBy || 'default';
+  const minPrice = req.query.minPrice ? parseInt(req.query.minPrice) : 0;
+  const maxPrice = req.query.maxPrice ? parseInt(req.query.maxPrice) : Infinity;
+  
+  let query = {};
+  
+  // Apply category filter
+  if (filter !== 'all') {
+    query.category = filter;
+  }
+  
+  // Apply price range filter
+  query.price = { $gte: minPrice, $lte: maxPrice };
+  
+  let allListings = await Listing.find(query);
+  
+  // Apply sorting
+  if (sortBy === 'price-low') {
+    allListings.sort((a, b) => a.price - b.price);
+  } else if (sortBy === 'price-high') {
+    allListings.sort((a, b) => b.price - a.price);
+  } else if (sortBy === 'newest') {
+    allListings.sort((a, b) => b._id - a._id);
+  }
+  
+  res.render("listings/index.ejs", { allListings, currentFilter: filter, sortBy, minPrice, maxPrice });
 };
 
 module.exports.renderNewForm = (req, res) => {

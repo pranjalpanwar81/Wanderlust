@@ -1,0 +1,596 @@
+<div class="filters-container">
+  <div class="filters-wrapper">
+    <div class="filter-items-scroll">
+      <div class="filter-item" data-filter="all">
+        <i class="fa-solid fa-house"></i>
+        <span>All</span>
+      </div>
+      <div class="filter-item" data-filter="beach">
+        <i class="fa-solid fa-umbrella-beach"></i>
+        <span>Beach</span>
+      </div>
+      <div class="filter-item" data-filter="mountains">
+        <i class="fa-solid fa-mountain"></i>
+        <span>Mountains</span>
+      </div>
+      <div class="filter-item" data-filter="cabin">
+        <i class="fa-solid fa-tree"></i>
+        <span>Cabins</span>
+      </div>
+      <div class="filter-item" data-filter="pool">
+        <i class="fa-solid fa-water-ladder"></i>
+        <span>Amazing pools</span>
+      </div>
+      <div class="filter-item" data-filter="camping">
+        <i class="fa-solid fa-campground"></i>
+        <span>Camping</span>
+      </div>
+      <div class="filter-item" data-filter="farm">
+        <i class="fa-solid fa-tractor"></i>
+        <span>Farms</span>
+      </div>
+      <div class="filter-item" data-filter="arctic">
+        <i class="fa-solid fa-snowflake"></i>
+        <span>Arctic</span>
+      </div>
+      <div class="filter-item" data-filter="trending">
+        <i class="fa-solid fa-fire"></i>
+        <span>Trending</span>
+      </div>
+      <div class="filter-item" data-filter="luxury">
+        <i class="fa-solid fa-gem"></i>
+        <span>Luxury</span>
+      </div>
+    </div>
+    
+    <div class="filter-actions">
+      <div class="sort-dropdown">
+        <button class="sort-btn" id="sortBtn">
+          <i class="fa-solid fa-sort"></i>
+          <span>Sort by</span>
+        </button>
+        <div class="sort-menu" id="sortMenu">
+          <div class="sort-option" data-sort="default">Default</div>
+          <div class="sort-option" data-sort="price-low">Price: Low to High</div>
+          <div class="sort-option" data-sort="price-high">Price: High to Low</div>
+          <div class="sort-option" data-sort="newest">Newest First</div>
+        </div>
+      </div>
+      
+      <div class="price-filter">
+        <button class="price-btn" id="priceBtn">
+          <i class="fa-solid fa-sliders"></i>
+          <span>Price Range</span>
+        </button>
+        <div class="price-menu" id="priceMenu">
+          <div class="price-inputs">
+            <div class="price-input-group">
+              <label>Min</label>
+              <input type="number" id="minPrice" placeholder="₹0" min="0">
+            </div>
+            <div class="price-input-group">
+              <label>Max</label>
+              <input type="number" id="maxPrice" placeholder="Any" min="0">
+            </div>
+          </div>
+          <button class="apply-price-btn" id="applyPriceBtn">Apply</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+.filters-container {
+  border-bottom: 1px solid #e0e0e0;
+  background: white;
+  position: fixed;
+  top: 56px;
+  left: 0;
+  right: 0;
+  z-index: 1020;
+  padding: 0 20px;
+  height: 60px;
+}
+
+.filters-wrapper {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 0;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  align-items: center;
+  flex: 1;
+}
+
+.filter-items-scroll {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  align-items: center;
+  flex: 1;
+}
+
+.filter-items-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-shrink: 0;
+  margin-left: 12px;
+}
+
+.filter-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 6px 12px;
+  min-width: 70px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 1px solid transparent;
+  background: #f7f7f7;
+  color: #717171;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.filter-item i {
+  font-size: 16px;
+  margin-bottom: 3px;
+  color: #717171;
+  transition: color 0.3s ease;
+}
+
+.filter-item span {
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.sort-dropdown,
+.price-filter {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.sort-dropdown .sort-menu,
+.price-filter .price-menu {
+  position: fixed;
+  z-index: 9999;
+}
+
+.sort-btn,
+.price-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  background: white;
+  cursor: pointer;
+  font-size: 11px;
+  color: #333;
+  transition: all 0.3s ease;
+  white-space: nowrap;
+}
+
+.sort-btn:hover,
+.price-btn:hover {
+  background: #f5f5f5;
+  border-color: #d0d0d0;
+}
+
+.sort-btn i,
+.price-btn i {
+  font-size: 12px;
+}
+
+.filter-item:hover {
+  background: #e7e7e7;
+  color: #222222;
+  transform: translateY(-2px);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.filter-item:hover i {
+  color: #222222;
+}
+
+.filter-item.active {
+  background: #333333;
+  color: white;
+  border-color: #333333;
+}
+
+.filter-item.active i {
+  color: white;
+}
+
+.filter-item.active:hover {
+  background: #444444;
+  color: white;
+}
+
+.sort-menu,
+.price-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 200px;
+  z-index: 9999;
+  display: none;
+  padding: 8px 0;
+}
+
+.sort-menu.show,
+.price-menu.show {
+  display: block;
+}
+
+.sort-option {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 14px;
+}
+
+.sort-option:hover {
+  background: #f5f5f5;
+}
+
+.sort-option.active {
+  background: #e7e7e7;
+  font-weight: 500;
+}
+
+.price-inputs {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.price-input-group {
+  flex: 1;
+}
+
+.price-input-group label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.price-input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.price-input-group input:focus {
+  outline: none;
+  border-color: #222;
+}
+
+.apply-price-btn {
+  width: calc(100% - 32px);
+  margin: 0 16px 12px;
+  padding: 10px;
+  background: #222;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.apply-price-btn:hover {
+  background: #333;
+}
+
+@media (max-width: 768px) {
+  .filter-item {
+    min-width: 70px;
+    padding: 6px 12px;
+  }
+  
+  .filter-item i {
+    font-size: 16px;
+  }
+  
+  .filter-item span {
+    font-size: 10px;
+  }
+}
+
+.sort-filter-section {
+  display: flex;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid #e0e0e0;
+  margin-top: 6px;
+}
+
+.sort-dropdown,
+.price-filter {
+  position: relative;
+}
+
+.sort-btn,
+.price-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 16px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  color: #333;
+  transition: all 0.3s ease;
+}
+
+.sort-btn:hover,
+.price-btn:hover {
+  background: #f5f5f5;
+  border-color: #d0d0d0;
+}
+
+.sort-btn i,
+.price-btn i {
+  font-size: 12px;
+}
+
+.sort-menu.show,
+.price-menu.show {
+  display: block;
+}
+
+.sort-option {
+  padding: 10px 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  font-size: 14px;
+}
+
+.sort-option:hover {
+  background: #f5f5f5;
+}
+
+.sort-option.active {
+  background: #e7e7e7;
+  font-weight: 500;
+}
+
+.price-inputs {
+  padding: 12px 16px;
+  display: flex;
+  gap: 12px;
+}
+
+.price-input-group {
+  flex: 1;
+}
+
+.price-input-group label {
+  display: block;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.price-input-group input {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.price-input-group input:focus {
+  outline: none;
+  border-color: #222;
+}
+
+.apply-price-btn {
+  width: calc(100% - 32px);
+  margin: 0 16px 12px;
+  padding: 10px;
+  background: #222;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background 0.3s ease;
+}
+
+.apply-price-btn:hover {
+  background: #333;
+}
+
+@media (max-width: 768px) {
+  .sort-filter-section {
+    flex-wrap: wrap;
+  }
+  
+  .sort-dropdown,
+  .price-filter {
+    flex: 1;
+    min-width: 140px;
+  }
+}
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const filterItems = document.querySelectorAll('.filter-item');
+  const sortBtn = document.getElementById('sortBtn');
+  const sortMenu = document.getElementById('sortMenu');
+  const sortOptions = document.querySelectorAll('.sort-option');
+  const priceBtn = document.getElementById('priceBtn');
+  const priceMenu = document.getElementById('priceMenu');
+  const applyPriceBtn = document.getElementById('applyPriceBtn');
+  const minPriceInput = document.getElementById('minPrice');
+  const maxPriceInput = document.getElementById('maxPrice');
+  
+  // Get current URL parameters
+  const urlParams = new URLSearchParams(window.location.search);
+  const currentFilter = urlParams.get('filter') || localStorage.getItem('currentFilter') || 'all';
+  const currentSort = urlParams.get('sortBy') || 'default';
+  const currentMinPrice = urlParams.get('minPrice') || '';
+  const currentMaxPrice = urlParams.get('maxPrice') || '';
+  
+  // Set active filter
+  filterItems.forEach(item => {
+    if (item.getAttribute('data-filter') === currentFilter) {
+      item.classList.add('active');
+    }
+  });
+  
+  // Set active sort option
+  sortOptions.forEach(option => {
+    if (option.getAttribute('data-sort') === currentSort) {
+      option.classList.add('active');
+    }
+  });
+  
+  // Set price inputs
+  if (currentMinPrice) minPriceInput.value = currentMinPrice;
+  if (currentMaxPrice) maxPriceInput.value = currentMaxPrice;
+  
+  // Filter item click handler
+  filterItems.forEach(item => {
+    item.addEventListener('click', function() {
+      filterItems.forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+      
+      const filter = this.getAttribute('data-filter');
+      localStorage.setItem('currentFilter', filter);
+      
+      // Preserve current sort and price filters
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set('filter', filter);
+      if (currentSort !== 'default') newUrl.searchParams.set('sortBy', currentSort);
+      if (currentMinPrice) newUrl.searchParams.set('minPrice', currentMinPrice);
+      if (currentMaxPrice) newUrl.searchParams.set('maxPrice', currentMaxPrice);
+      
+      window.location.href = newUrl.toString();
+    });
+  });
+  
+  // Sort dropdown toggle
+  sortBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    sortMenu.classList.toggle('show');
+    priceMenu.classList.remove('show');
+    
+    // Position the menu dynamically
+    if (sortMenu.classList.contains('show')) {
+      const rect = sortBtn.getBoundingClientRect();
+      const menuWidth = sortMenu.offsetWidth || 200;
+      const screenWidth = window.innerWidth;
+      
+      let leftPos = rect.left;
+      
+      // Adjust if menu would go off screen
+      if (leftPos + menuWidth > screenWidth) {
+        leftPos = screenWidth - menuWidth - 20;
+      }
+      
+      sortMenu.style.top = (rect.bottom + window.scrollY) + 'px';
+      sortMenu.style.left = leftPos + 'px';
+    }
+  });
+  
+  // Price dropdown toggle
+  priceBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    priceMenu.classList.toggle('show');
+    sortMenu.classList.remove('show');
+    
+    // Position the menu dynamically
+    if (priceMenu.classList.contains('show')) {
+      const rect = priceBtn.getBoundingClientRect();
+      const menuWidth = priceMenu.offsetWidth || 200;
+      const screenWidth = window.innerWidth;
+      
+      let leftPos = rect.left;
+      
+      // Adjust if menu would go off screen
+      if (leftPos + menuWidth > screenWidth) {
+        leftPos = screenWidth - menuWidth - 20;
+      }
+      
+      priceMenu.style.top = (rect.bottom + window.scrollY) + 'px';
+      priceMenu.style.left = leftPos + 'px';
+    }
+  });
+  
+  // Prevent dropdowns from closing when clicking inside them
+  sortMenu.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+  
+  priceMenu.addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+  
+  // Close dropdowns when clicking outside
+  document.addEventListener('click', function() {
+    sortMenu.classList.remove('show');
+    priceMenu.classList.remove('show');
+  });
+  
+  // Sort option click handler
+  sortOptions.forEach(option => {
+    option.addEventListener('click', function() {
+      const sortBy = this.getAttribute('data-sort');
+      
+      sortOptions.forEach(o => o.classList.remove('active'));
+      this.classList.add('active');
+      
+      const newUrl = new URL(window.location);
+      newUrl.searchParams.set('sortBy', sortBy);
+      if (currentMinPrice) newUrl.searchParams.set('minPrice', currentMinPrice);
+      if (currentMaxPrice) newUrl.searchParams.set('maxPrice', currentMaxPrice);
+      
+      window.location.href = newUrl.toString();
+    });
+  });
+  
+  // Apply price filter
+  applyPriceBtn.addEventListener('click', function() {
+    const minPrice = minPriceInput.value;
+    const maxPrice = maxPriceInput.value;
+    
+    const newUrl = new URL(window.location);
+    if (minPrice) newUrl.searchParams.set('minPrice', minPrice);
+    else newUrl.searchParams.delete('minPrice');
+    if (maxPrice) newUrl.searchParams.set('maxPrice', maxPrice);
+    else newUrl.searchParams.delete('maxPrice');
+    
+    window.location.href = newUrl.toString();
+  });
+});
+</script>

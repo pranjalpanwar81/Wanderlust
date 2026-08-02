@@ -57,6 +57,23 @@
         <div class="invalid-feedback">Location should be valid</div>
       </div>
 
+      <div class="mb-3"> 
+        <lable for="category" class="form-label">Category</lable>
+        <select name="listing[category]" class="form-control" required>
+          <option value="">Select a category</option>
+          <option value="beach">Beach</option>
+          <option value="mountains">Mountains</option>
+          <option value="cabin">Cabins</option>
+          <option value="pool">Amazing pools</option>
+          <option value="camping">Camping</option>
+          <option value="farm">Farms</option>
+          <option value="arctic">Arctic</option>
+          <option value="trending">Trending</option>
+          <option value="luxury">Luxury</option>
+        </select>
+        <div class="invalid-feedback">Please select a category</div>
+      </div>
+
       <button class="btn btn-dark add-btn mt-3">Add</button>
       
     </form>

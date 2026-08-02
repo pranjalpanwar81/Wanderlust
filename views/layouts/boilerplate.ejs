@@ -16,7 +16,8 @@
 </head>
 <body>
     <%- include ("../includes/navbar.ejs") %>
-    <div class="container">
+    <%- include ("../includes/filters.ejs") %>
+    <div class="container" style="margin-top: 140px;">
         <%- include ("../includes/flash.ejs") %>
         <%- body %>
     </div>

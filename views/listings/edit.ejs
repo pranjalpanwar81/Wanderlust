@@ -64,6 +64,23 @@
         <div class="invalid-feedback">Location should be valid</div>
       </div>
 
+      <div class="mb-3"> 
+        <lable for="category" class="form-label">Category</lable>
+        <select name="listing[category]" class="form-control" required>
+          <option value="">Select a category</option>
+          <option value="beach" <%= listing.category === 'beach' ? 'selected' : '' %>>Beach</option>
+          <option value="mountains" <%= listing.category === 'mountains' ? 'selected' : '' %>>Mountains</option>
+          <option value="cabin" <%= listing.category === 'cabin' ? 'selected' : '' %>>Cabins</option>
+          <option value="pool" <%= listing.category === 'pool' ? 'selected' : '' %>>Amazing pools</option>
+          <option value="camping" <%= listing.category === 'camping' ? 'selected' : '' %>>Camping</option>
+          <option value="farm" <%= listing.category === 'farm' ? 'selected' : '' %>>Farms</option>
+          <option value="arctic" <%= listing.category === 'arctic' ? 'selected' : '' %>>Arctic</option>
+          <option value="trending" <%= listing.category === 'trending' ? 'selected' : '' %>>Trending</option>
+          <option value="luxury" <%= listing.category === 'luxury' ? 'selected' : '' %>>Luxury</option>
+        </select>
+        <div class="invalid-feedback">Please select a category</div>
+      </div>
+
       <br /><br />
       <button class="btn btn-dark edit-tbn">Edit</button>
     </form>
