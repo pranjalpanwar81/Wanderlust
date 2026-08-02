@@ -10,6 +10,7 @@ module.exports.index = async (req, res) => {
   const sortBy = req.query.sortBy || 'default';
   const minPrice = req.query.minPrice ? parseInt(req.query.minPrice) : 0;
   const maxPrice = req.query.maxPrice ? parseInt(req.query.maxPrice) : Infinity;
+  const searchQuery = req.query.q || '';
   
   let query = {};
   
@@ -32,7 +33,36 @@ module.exports.index = async (req, res) => {
     allListings.sort((a, b) => b._id - a._id);
   }
   
-  res.render("listings/index.ejs", { allListings, currentFilter: filter, sortBy, minPrice, maxPrice });
+  res.render("listings/index.ejs", { allListings, currentFilter: filter, sortBy, minPrice, maxPrice, searchQuery });
+};
+
+module.exports.searchListings = async (req, res) => {
+  const query = req.query.q || '';
+  
+  if (!query) {
+    return res.redirect('/listings');
+  }
+  
+  // Search across multiple fields: title, location, country, description
+  const searchRegex = new RegExp(query, 'i');
+  
+  const allListings = await Listing.find({
+    $or: [
+      { title: searchRegex },
+      { location: searchRegex },
+      { country: searchRegex },
+      { description: searchRegex }
+    ]
+  });
+  
+  res.render("listings/index.ejs", { 
+    allListings, 
+    searchQuery: query,
+    currentFilter: 'all',
+    sortBy: 'default',
+    minPrice: 0,
+    maxPrice: Infinity
+  });
 };
 
 module.exports.renderNewForm = (req, res) => {

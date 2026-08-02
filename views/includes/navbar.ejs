@@ -8,6 +8,16 @@
       <div class="navbar-nav">
         <a class="nav-link" href="/listings">Explore</a>
       </div>
+      <div class="navbar-nav mx-auto">
+        <form class="search-form" action="/listings/search" method="GET">
+          <div class="search-input-wrapper">
+            <input type="text" class="search-input" name="q" placeholder="Search by country, location, or title...">
+            <button type="submit" class="search-button">
+              <i class="fa-solid fa-search"></i>
+            </button>
+          </div>
+        </form>
+      </div>
       <div class="navbar-nav ms-auto">
         <a class="nav-link add-home-btn" id="addHomeBtn" href="/listings/new">Add Your New Home</a>
         <% if(currentUser) { %>

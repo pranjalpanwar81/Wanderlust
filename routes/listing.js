@@ -16,6 +16,9 @@ router
     .get(wrapAsync(listingController.index))
     .post(isLoggedIn, upload.single('listing[image]'), validateListing, wrapAsync(listingController.createListing));
 
+//Search Route
+router.get("/search", wrapAsync(listingController.searchListings));
+
 //New Route
 router.get("/new",isLoggedIn, listingController.renderNewForm);
 

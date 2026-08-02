@@ -1,5 +1,12 @@
 <% layout("layouts/boilerplate") %>
 <body>
+  <% if (searchQuery) { %>
+    <div class="search-results-header mb-4">
+      <h4>Search results for "<%= searchQuery %>"</h4>
+      <p class="text-muted">Found <%= allListings.length %> listing(s)</p>
+    </div>
+  <% } %>
+
   <!-- <form method="GET" action="/listings/new">
     <button>Create New Listing</button>
   </form> -->
