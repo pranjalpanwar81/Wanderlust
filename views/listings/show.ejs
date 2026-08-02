@@ -25,7 +25,7 @@
     </div>
     <p class="card-text show-description"><%= listing.description %></p>
     <div class="show-chip-row">
-      <span class="show-chip">&#8377; <%= listing.price.toLocaleString("en-IN") %></span>
+      <span class="show-chip listing-price" data-base-price="<%= listing.price || 0 %>">&#8377; <%= listing.price.toLocaleString("en-IN") %></span>
       <span class="show-chip"><%= listing.location %></span>
       <span class="show-chip"><%= listing.country %></span>
     </div>

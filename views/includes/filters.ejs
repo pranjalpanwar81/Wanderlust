@@ -44,6 +44,14 @@
     </div>
     
     <div class="filter-actions">
+      <div class="tax-toggle-wrapper">
+        <label class="tax-toggle-label">Display total after taxes</label>
+        <label class="tax-switch">
+          <input type="checkbox" id="taxToggle">
+          <span class="tax-slider"></span>
+        </label>
+      </div>
+      
       <div class="sort-dropdown">
         <button class="sort-btn" id="sortBtn">
           <i class="fa-solid fa-sort"></i>
@@ -124,6 +132,70 @@
   align-items: center;
   flex-shrink: 0;
   margin-left: 12px;
+}
+
+.tax-toggle-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: white;
+  border-radius: 16px;
+  border: 1px solid #e0e0e0;
+}
+
+.tax-toggle-label {
+  font-size: 11px;
+  font-weight: 500;
+  color: #333;
+  white-space: nowrap;
+  margin: 0;
+}
+
+.tax-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  margin: 0;
+}
+
+.tax-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.tax-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 20px;
+}
+
+.tax-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.tax-switch input:checked + .tax-slider {
+  background-color: #ff5722;
+}
+
+.tax-switch input:checked + .tax-slider:before {
+  transform: translateX(16px);
 }
 
 .filter-item {
@@ -453,6 +525,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const applyPriceBtn = document.getElementById('applyPriceBtn');
   const minPriceInput = document.getElementById('minPrice');
   const maxPriceInput = document.getElementById('maxPrice');
+  const taxToggle = document.getElementById('taxToggle');
   
   // Get current URL parameters
   const urlParams = new URLSearchParams(window.location.search);
@@ -478,6 +551,37 @@ document.addEventListener('DOMContentLoaded', function() {
   // Set price inputs
   if (currentMinPrice) minPriceInput.value = currentMinPrice;
   if (currentMaxPrice) maxPriceInput.value = currentMaxPrice;
+  
+  // Set tax toggle state from localStorage
+  const taxEnabled = localStorage.getItem('taxEnabled') === 'true';
+  taxToggle.checked = taxEnabled;
+  updatePrices(taxEnabled);
+  
+  // Tax toggle change handler
+  taxToggle.addEventListener('change', function() {
+    const enabled = this.checked;
+    localStorage.setItem('taxEnabled', enabled);
+    updatePrices(enabled);
+  });
+  
+  // Function to update prices based on tax toggle
+  function updatePrices(withTax) {
+    const priceElements = document.querySelectorAll('.listing-price');
+    priceElements.forEach(element => {
+      const basePrice = parseFloat(element.getAttribute('data-base-price'));
+      if (!isNaN(basePrice)) {
+        if (withTax) {
+          const taxAmount = basePrice * 0.18;
+          const totalPrice = basePrice + taxAmount;
+          element.textContent = '₹' + totalPrice.toLocaleString('en-IN') + ' /night';
+          element.setAttribute('title', 'Includes 18% GST');
+        } else {
+          element.textContent = '₹' + basePrice.toLocaleString('en-IN') + ' /night';
+          element.setAttribute('title', 'Before taxes');
+        }
+      }
+    });
+  }
   
   // Filter item click handler
   filterItems.forEach(item => {
