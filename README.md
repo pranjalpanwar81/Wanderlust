@@ -1,20 +1,255 @@
 # Wanderlust — Travel-stay Listing Platform
 
-Wanderlust is a full-stack, server-rendered travel listing/demo application implemented with Node.js, Express, MongoDB, and EJS. It demonstrates CRUD workflows, nested resources (listings with reviews), simple authentication, and responsive theming (light/dark). This README documents the architecture, data model, routes, developer setup, and how to produce visual proof (screenshots) of the running site.
+This README describes the Wanderlust project: a server-rendered travel-stay listings demo app built with Node.js, Express and MongoDB. The document is intended to provide a single reference that explains the architecture, data model, routes, developer setup, available scripts, and how to run the project locally. It intentionally does not embed screenshots — place any visual proof in `docs/screenshots/` if needed, but the screenshots section is left empty by default.
 
 Table of contents
+
 - Overview
 - Architecture & diagrams
 - Data models
 - REST routes
-- Pages & UI overview (per-page screenshots)
-- Local setup and development
-- Automated screenshots (script)
-- Tests & linting (notes)
+- Pages and UI overview
+- Developer setup (local)
+- Seed data
+- Scripts and automation
+- Testing and linting
 - Deployment notes
 - Contributing
 - License
 
+---
+
+## Overview
+
+Wanderlust is a minimal but complete example of a listings platform with the following capabilities:
+
+- Create, edit and delete listings (title, description, image, price, location)
+- Add and delete reviews on listings (rating 1–5 + comment)
+- User authentication (signup/login) and session management
+- Responsive UI built with Bootstrap and custom CSS; supports dark mode
+- Server-side validation and safe async request handling
+
+The app is suitable as a portfolio piece or a foundation for more advanced features (cloud storage, payments, search, pagination).
+
+---
+
+## Architecture & diagrams
+
+The application follows a conventional MVC-style organization for small Express apps:
+
+- Express application (`app.js`) — config, middleware, routes, error handling
+- Routes — map HTTP endpoints to controller logic
+- Controllers — application logic that interacts with models and renders views
+- Models — Mongoose schemas for `Listing`, `Review`, `User`
+- Views — EJS templates with partials and layouts under `views/`
+- Static assets — `public/` contains CSS, JS and client assets
+
+Service flow (request → response):
+
+```mermaid
+flowchart LR
+    Browser -->|HTTP| Express[Express server]
+    Express --> Router[Router layer]
+    Router --> Controller[Controller / Handler]
+    Controller --> Model[Mongoose models]
+    Model --> Mongo[(MongoDB)]
+    Controller --> View[EJS view]
+    View --> Browser
+```
+
+Data flow for Listings & Reviews:
+
+```mermaid
+sequenceDiagram
+    participant U as User
+    participant B as Browser
+    participant S as Server
+    participant DB as MongoDB
+
+    U->>B: Fill create listing form
+    B->>S: POST /listings
+    S->>DB: create Listing document
+    DB-->>S: id
+    S-->>B: redirect /listings/:id
+
+    U->>B: Submit review
+    B->>S: POST /listings/:id/reviews
+    S->>DB: create Review and push id to Listing.reviews
+    DB-->>S: ok
+    S-->>B: redirect back
+```
+
+---
+
+## Data models (summary)
+
+Below are concise descriptions of the primary Mongoose models. See the `models/` folder for full schemas.
+
+- Listing
+    - title: String
+    - description: String
+    - price: Number
+    - image: { url: String, filename: String }
+    - location, country: String
+    - owner: ObjectId -> User
+    - reviews: [ ObjectId -> Review ]
+
+- Review
+    - rating: Number (1..5)
+    - comment: String
+    - author: ObjectId -> User
+
+- User
+    - username: String
+    - email: String
+    - password: String (hashed in DB)
+
+Important behaviors
+
+- When a listing is deleted the app removes its associated reviews (cascade cleanup) to avoid orphaned documents.
+- Validation is applied at the route layer (Joi) as well as using Mongoose schema constraints.
+
+---
+
+## REST routes (concise reference)
+
+Listings
+
+- GET /listings — listing index (grid)
+- GET /listings/new — form to create a listing
+- POST /listings — create a listing
+- GET /listings/:id — show listing (details + reviews)
+- GET /listings/:id/edit — edit form
+- PUT /listings/:id — update listing
+- DELETE /listings/:id — remove listing and associated reviews
+
+Reviews (nested)
+
+- POST /listings/:id/reviews — create review for listing
+- DELETE /listings/:id/reviews/:reviewId — delete review
+
+Authentication
+
+- GET /signup — registration form
+- POST /users/signup — create user
+- GET /login — login form
+- POST /login — authenticate user
+- POST /logout — destroy session
+
+---
+
+## Pages and UI overview
+
+The application uses server-rendered EJS templates located in `views/`. Key pages:
+
+- `/listings` — index: grid of listing cards (image, title, price)
+- `/listings/new` — new listing form (file upload, location, price, category)
+- `/listings/:id` — show: large hero image, description, chips (price/location), reviews and review form
+- `/signup` and `/login` — authentication forms
+
+Notes about UI
+
+- Theme color: primary accent uses an orange `#ff5722` across the site (buttons, links, highlights).
+- Dark mode is implemented via a `body.dark-mode` class and CSS overrides in `public/css/style.css`.
+- Cards and interactive elements use subtle transitions; the project includes CSS rules to remove or tune hover effects depending on preference.
+
+---
+
+## Developer setup (local)
+
+Prerequisites
+
+- Node.js 18+ (LTS recommended)
+- MongoDB Community Server (or Atlas connection)
+
+Quick start
+
+```bash
+# clone
+git clone https://github.com/pranjalpanwar81/Wanderlust.git
+cd Wanderlust
+
+# install dependencies
+npm install
+
+# (optional) start local MongoDB if not using a remote DB
+# mongod --dbpath ~/mongodb-data
+
+# (optional) seed sample data
+node init/index.js
+
+# start the app
+node app.js
+
+# open http://localhost:8080
+```
+
+Configuration
+
+- Environment variables can be provided via `.env` or your environment:
+    - `DB_URL` (mongodb connection string)
+    - `MAP_TOKEN` (map provider token)
+    - `SESSION_SECRET` (session encryption secret)
+
+---
+
+## Seed data
+
+The `init/` directory contains a simple script to populate the database with demo listings. Run `node init/index.js` to seed the database (useful for demo/testing). This script may replace existing demo data — back up production data before running.
+
+---
+
+## Scripts and automation
+
+Common npm commands (check `package.json` scripts):
+
+- `npm start` — start the app (production-like)
+- `npm run dev` — start the app with nodemon/watchers for development
+
+Automated screenshots
+
+- There is an optional helper `scripts/capture-screenshots.js` using Puppeteer to capture pages and save full-page PNGs to `docs/screenshots/`. The README intentionally leaves the screenshot area empty; the script is provided for convenience if you want to generate visual proof locally.
+
+---
+
+## Testing & linting (notes)
+
+- No automated tests are included by default. Suggested improvements:
+    - Add Jest + supertest for request-level tests
+    - Add ESLint and Prettier for consistent code style
+
+---
+
+## Deployment notes
+
+- Production checklist:
+    - Use a managed MongoDB (Atlas) or provisioned database with backups
+    - Store environment variables securely (not in repo)
+    - Serve behind a process manager (PM2) or container orchestrator
+    - Offload images to cloud storage (S3 or similar) and serve via CDN
+
+---
+
+## Contributing
+
+- Create a fork and send pull requests for small, focused changes.
+- Include tests for new logic when possible.
+
+---
+
+## Screenshots (empty)
+
+The `docs/screenshots/` folder exists in the repository for optional proof images. This README intentionally does not embed screenshots. Place any screenshots you want to include into that folder and update the README or open a PR to add them.
+
+---
+
+## License
+
+This project is distributed under the ISC License.
+
+---
+
+If you want, I can later generate a concise PDF or a one-page summary for sharing; tell me what format you prefer.
 ---
 
 ## Overview
