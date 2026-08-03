@@ -1,175 +1,222 @@
-# Wanderlust
+# Wanderlust — Travel-stay Listing Platform
 
-> A full-stack travel-stay listing platform built with Express, MongoDB, and server-rendered EJS views.
+Wanderlust is a full-stack, server-rendered travel listing/demo application implemented with Node.js, Express, MongoDB, and EJS. It demonstrates CRUD workflows, nested resources (listings with reviews), simple authentication, and responsive theming (light/dark). This README documents the architecture, data model, routes, developer setup, and how to produce visual proof (screenshots) of the running site.
 
-Wanderlust is a CRUD web application for browsing and managing travel stays. Users can explore a catalogue of properties, view listing details, create and update listings, and share ratings and written reviews. The project demonstrates practical backend fundamentals: RESTful routing, relational data modelling with MongoDB references, server-side validation, reusable UI templates, and centralized error handling.
+Table of contents
+- Overview
+- Architecture & diagrams
+- Data models
+- REST routes
+- Pages & UI overview (per-page screenshots)
+- Local setup and development
+- Automated screenshots (script)
+- Tests & linting (notes)
+- Deployment notes
+- Contributing
+- License
 
-## Why this project
+---
 
-This project was built to apply full-stack development concepts in a real application flow—not just isolated exercises. It turns user input into validated MongoDB documents, renders dynamic pages from persisted data, and keeps related reviews consistent when a listing is removed.
+## Overview
 
-## Features
+- Users can browse, create, edit, and delete travel listings.
+- Each listing can receive reviews (1–5 stars + comment).
+- Simple user authentication (signup/login) guards create/edit flows.
+- UI uses Bootstrap with custom CSS and supports a dark mode theme.
 
-- **Listing management:** Create, read, update, and delete travel listings.
-- **Review system:** Add 1–5 star ratings and comments to individual listings; delete reviews when needed.
-- **Data integrity:** Reviews are linked to listings through MongoDB object references and are cleaned up when their listing is deleted.
-- **Validation at two layers:** Bootstrap provides client-side feedback, while Joi protects server routes from invalid listing and review payloads.
-- **Resilient request handling:** Async routes are wrapped to forward errors to a centralized custom error handler and friendly error page.
-- **Reusable server-rendered UI:** EJS, ejs-mate layouts, partial navigation, and footer components keep views consistent.
-- **Starter data:** A seed script loads 27 sample travel stays to make the application immediately explorable.
+## Architecture
 
-## Tech stack
+High level components:
+- Express app (`app.js`) exposes RESTful routes and renders EJS views.
+- Mongoose models manage `Listing`, `Review`, and `User` documents.
+- Static assets live in `public/` (CSS, client JS, images).
+- `init/` provides a seed script to populate the database with sample data.
 
-| Layer | Technology |
-| --- | --- |
-| Runtime | Node.js |
-| Web framework | Express.js |
-| Database | MongoDB with Mongoose ODM |
-| Templating | EJS and ejs-mate |
-| Validation | Joi and Bootstrap form validation |
-| HTTP method support | method-override |
-| UI | Bootstrap, custom CSS, Font Awesome, Google Fonts |
-| Development tooling | Nodemon and concurrently |
-
-## Application flow
+Mermaid service map:
 
 ```mermaid
 flowchart LR
-    U[Browser] --> E[Express routes]
-    E --> V[Joi validation]
-    V --> M[Mongoose models]
-    M --> D[(MongoDB)]
-    D --> E
-    E --> T[EJS views]
-    T --> U
+    Browser -->|HTTP| Express[Express routes]
+    Express -->|validate| Joi[Schema validation]
+    Express -->|queries| Mongoose[Mongoose models]
+    Mongoose --> Mongo[(MongoDB)]
+    Express -->|render| Views[EJS views]
+    Views --> Browser
 ```
 
-## Quick start
+System architecture (simplified):
 
-### Prerequisites
-
-- [Node.js](https://nodejs.org/) 18 or later
-- [MongoDB Community Server](https://www.mongodb.com/try/download/community), running locally
-
-The app connects to:
-
-```text
-mongodb://127.0.0.1:27017/wanderlust
+```mermaid
+graph TD
+    A[Browser] --> B[Load pages & submit forms]
+    B --> C[Express Server]
+    C --> D[Auth middleware]
+    C --> E[Validation (Joi)]
+    E --> F[Mongoose models]
+    F --> G[MongoDB]
+    C --> H[Views (EJS + Bootstrap + custom CSS)]
 ```
 
-### Installation
+---
+
+## Data models (summary)
+
+- Listing
+    - title: String
+    - description: String
+    - image: { url, filename }
+    - location, country
+    - price: Number
+    - owner: ObjectId → User
+    - reviews: [ObjectId → Review]
+
+- Review
+    - rating: Number (1–5)
+    - comment: String
+    - author: ObjectId → User
+
+- User
+    - username, email, password (hashed)
+
+Notes: Mongoose hooks remove reviews when a listing is deleted to keep data consistent.
+
+---
+
+## REST routes (concise)
+
+Listings
+- GET /listings — list all
+- GET /listings/new — show new listing form
+- POST /listings — create listing
+- GET /listings/:id — show listing + reviews
+- GET /listings/:id/edit — edit form
+- PUT /listings/:id — update
+- DELETE /listings/:id — delete
+
+Reviews (nested)
+- POST /listings/:id/reviews — create review
+- DELETE /listings/:id/reviews/:reviewId — remove review
+
+Auth
+- GET /signup, POST /users/signup
+- GET /login, POST /login
+
+---
+
+## Pages & Screenshots
+
+The repository includes `docs/screenshots/` — add proof screenshots there. Example pages to capture:
+
+- Homepage (`/listings` or `/`) — listings grid
+- Listing show (`/listings/:id`) — listing details and review form
+- New listing (`/listings/new`) — create listing form
+- Signup (`/signup`) — sign up page
+- Login (`/login`) — login page
+- Any category/filter view you want to show
+
+See the `Automated screenshots` section below for a script that captures these pages for you.
+
+---
+
+## Local setup
+
+1. Clone and install dependencies
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/wanderlust-travel-listings.git
-cd wanderlust-travel-listings
+git clone https://github.com/pranjalpanwar81/Wanderlust.git
+cd Wanderlust
 npm install
 ```
 
-### Run locally
-
-Start MongoDB in a separate terminal:
+2. Start MongoDB (local) and seed data (optional)
 
 ```bash
-mongod
-```
 
-Seed the database with the included sample listings. **This removes existing listing data**, so use it only for a fresh local setup:
+mongod --dbpath ~/mongodb-data
 
-```bash
+# Seed demo data (first time only)
 node init/index.js
 ```
 
-Start the main app:
+3. Start the app
 
 ```bash
 node app.js
 ```
 
-Open [http://localhost:8080/listings](http://localhost:8080/listings) in your browser.
+4. Open the site at `http://localhost:8080`
 
-### npm scripts
+Environment variables
+- `DB_URL` — MongoDB connection string (optional)
+- `MAP_TOKEN` — Map provider key
+- `SESSION_SECRET` — session secret
+
+Create a `.env` file if you need to override defaults.
+
+---
+
+## Automated screenshots (Puppeteer)
+
+I added a small Puppeteer script: `scripts/capture-screenshots.js`.
+
+Usage:
 
 ```bash
-# Starts MongoDB when available, then starts Wanderlust
-npm start
+# install puppeteer (required once)
+npm install puppeteer --save-dev
 
-# Starts Wanderlust (port 8080) and the separate classroom practice server (port 3000)
-# with automatic restarts
-npm run dev
+# run the script (site must be running at http://localhost:8080)
+node scripts/capture-screenshots.js
+
+# screenshots will be saved to docs/screenshots/
 ```
 
-## RESTful routes
+The script visits the homepage, index, auth pages, and the first several listing detail pages it finds, saving full-page PNG screenshots.
 
-### Listings
+---
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| GET | `/listings` | Display all listings |
-| GET | `/listings/new` | Render the create-listing form |
-| POST | `/listings` | Create a listing |
-| GET | `/listings/:id` | Display a listing and its reviews |
-| GET | `/listings/:id/edit` | Render the edit form |
-| PUT | `/listings/:id` | Update a listing |
-| DELETE | `/listings/:id` | Delete a listing and its associated reviews |
+## Tests & linting
 
-### Reviews
+This repository does not include formal unit tests yet. Recommended next steps:
+- Add unit tests for controllers and model logic (e.g. Jest + supertest)
+- Add linting (ESLint) and a pre-commit hook
 
-| Method | Endpoint | Purpose |
-| --- | --- | --- |
-| POST | `/listings/:id/reviews` | Add a review to a listing |
-| DELETE | `/listings/:id/reviews/:reviewId` | Remove a review |
+---
 
-> Browser forms use `method-override` to make `PUT` and `DELETE` requests possible.
+## Deployment notes
 
-## Project structure
+- For production, host Node/Express behind a process manager (PM2) or containerize with Docker + deploy to a cloud provider.
+- Use a managed MongoDB (Atlas) and configure `DB_URL` accordingly.
+- Move image uploads to cloud storage (S3 or similar) rather than storing on the app server.
 
-```text
-.
-├── app.js                  # Express setup, MongoDB connection, middleware, error handling
-├── models/
-│   ├── listing.js           # Listing schema and review cleanup middleware
-│   └── review.js            # Review schema with rating constraints
-├── routes/
-│   ├── listing.js           # RESTful listing CRUD routes
-│   └── review.js            # Nested review routes
-├── views/
-│   ├── layouts/             # Shared EJS page layout
-│   ├── includes/            # Navbar and footer partials
-│   └── listings/            # Index, new, edit, and show pages
-├── public/
-│   ├── css/                 # Custom application styling
-│   └── js/                  # Client-side Bootstrap validation
-├── init/                    # Seed dataset and database initialization script
-├── utils/                   # Async wrapper and custom Express error class
-├── schema.js                # Joi request-validation schemas
-├── start.sh                 # Local MongoDB and application startup helper
-└── classroom/               # Separate Express routing and cookie practice module
-```
+---
 
-## Implementation highlights
+## Contributing
 
-- **Nested resources:** Review routes use Express `mergeParams` so every review operation remains scoped to its parent listing.
-- **Cascade cleanup:** A Mongoose `findOneAndDelete` hook removes reviews referenced by a deleted listing.
-- **Safe async routing:** A reusable `wrapAsync` helper eliminates repetitive `try/catch` blocks while keeping errors centralized.
-- **Default-image handling:** Empty image URLs are normalized so listings retain a usable fallback image.
-- **Separation of concerns:** Models, routes, validation schemas, utilities, views, and static assets are kept in dedicated folders.
+If you want help improving this project, feel free to open issues or send a pull request. Small, incremental changes and tests are appreciated.
 
-## Classroom module
+---
 
-The `classroom/` directory is intentionally kept separate from Wanderlust. It is a small Express practice server that demonstrates modular routers and signed cookies on port `3000`. The main portfolio project is the Wanderlust application in the repository root.
+## Screenshots / Proof
 
-## Planned improvements
+Add screenshots to `docs/screenshots/` (suggested names):
 
-- Authentication, authorization, and listing ownership
-- Cloud-based image uploads
-- Search, filters, and map-based discovery
-- Pagination and improved accessibility
-- Automated tests, CI, and production deployment
+- `home.png`
+- `listing_1.png`, `listing_2.png`, ...
+- `signup.png`
+- `login.png`
+
+These will render in this README automatically when present.
+
+---
 
 ## License
 
-This project is licensed under the [ISC License](https://opensource.org/license/isc-license-txt/).
+ISC License
 
+---
+
+If you want, I can run the screenshot script now and commit the captured images — confirm the app will be running at `http://localhost:8080` and I'll proceed to install Puppeteer and run the capture.
 ---
 
 ## Proof / Screenshots
@@ -185,8 +232,15 @@ Example Markdown that will display automatically when images are present:
 
 ![Homepage](docs/screenshots/home.png)
 
-![Listing page](docs/screenshots/listing_show.png)
+![Listings Index](docs/screenshots/listings.png)
+
+![Listing example 1](docs/screenshots/listing_1.png)
+
+![Listing example 2](docs/screenshots/listing_2.png)
+
+![New listing form](docs/screenshots/listingsnew.png)
 
 ![Signup](docs/screenshots/signup.png)
+![Login](docs/screenshots/login.png)
 
 If you'd like, upload the screenshots here or place them at `docs/screenshots/` locally and I can commit them for you.
