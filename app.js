@@ -2,6 +2,18 @@ if(process.env.NODE_ENV != "production") {
     require("dotenv").config();
 }
 
+process.on('uncaughtException', (err) => {
+  console.error('UNCAUGHT EXCEPTION - shutting down');
+  console.error(err && err.stack ? err.stack : err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (reason) => {
+  console.error('UNHANDLED REJECTION - shutting down');
+  console.error(reason && reason.stack ? reason.stack : reason);
+  process.exit(1);
+});
+
 const express = require("express");
 const app = express();
 const mongoose = require("mongoose");
@@ -40,8 +52,9 @@ const listingRouter = require("./routes/listing.js");
 const reviewrouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 
-// const MONGO_URL = "mongodb://127.0.0.1:27017/wanderlust";
-const dbUrl = process.env.ATLASDB_URL;
+// default to local MongoDB if ATLASDB_URL isn't provided to avoid
+// calling mongoose.connect(undefined) which throws an assertion error
+const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 
 main()
   .then(() => {
