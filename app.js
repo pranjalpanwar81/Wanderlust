@@ -166,10 +166,12 @@ app.use((err, req, res, next) => {
   // res.status(statusCode).send(message);
 });
 
-const PORT = 8080;
+
+const PORT = process.env.PORT || 8080;
 
 const server = app.listen(PORT, () => {
-  console.log(`main app is listening to port ${PORT}`);
+  const dbUsed = (dbUrl && (dbUrl.includes('127.0.0.1') || dbUrl.includes('localhost'))) ? 'local MongoDB' : 'remote MongoDB (ATLAS or cloud)';
+  console.log(`main app is listening on port ${PORT} — using ${dbUsed}`);
 });
 
 server.on("error", (err) => {
