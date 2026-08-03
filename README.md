@@ -122,6 +122,25 @@ No build step is required for the server. If you add a front-end build tool late
 
 - Use environment variables for `DB_URL`, `MAP_TOKEN`, and `SESSION_SECRET`.
 - For production, host behind a process manager (PM2) or a container runtime; use managed MongoDB for reliability.
+ - Use environment variables for `ATLASDB_URL`, `MAP_TOKEN`, and `SECRET`.
+ - For production, host behind a process manager (PM2) or a container runtime; use managed MongoDB for reliability.
+
+### Deploying to Render (example)
+
+1. Push your code to GitHub (this repo).
+2. In Render, create a new **Web Service** and connect your GitHub repo/`main` branch.
+  - Render should detect the included `render.yaml` and use `npm install` and `node app.js` by default.
+3. Add the required Environment Variables in Render (Service → Environment → Environment Variables):
+  - `ATLASDB_URL` — MongoDB Atlas connection string (example: `mongodb+srv://USER:PASSWORD@cluster0.xyz.mongodb.net/wanderlust?retryWrites=true&w=majority`).
+  - `SECRET` — session cookie secret (long random string).
+  - Optional: `MAP_TOKEN`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_KEY`, `CLOUDINARY_SECRET`.
+4. Ensure your MongoDB Atlas Network Access allows connections from Render (for testing you can add `0.0.0.0/0`, then restrict later).
+5. Trigger a Manual Deploy (or push a new commit) and watch the Render Logs → Live tail for startup messages.
+
+Live site
+- The project is deployed at: https://wanderlustt-o0y5.onrender.com
+
+Note: Do not commit secrets or full connection strings to the repository. Store them securely in the Render environment settings.
 
 ## :cherry_blossom: Community
 
