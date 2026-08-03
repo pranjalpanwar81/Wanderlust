@@ -19,6 +19,14 @@
         </form>
       </div>
       <div class="navbar-nav ms-auto">
+        <div class="dark-mode-toggle">
+          <i class="fa-solid fa-sun dark-mode-icon light-icon"></i>
+          <label class="dark-mode-switch">
+            <input type="checkbox" id="darkModeToggle">
+            <span class="dark-mode-slider"></span>
+          </label>
+          <i class="fa-solid fa-moon dark-mode-icon dark-icon"></i>
+        </div>
         <a class="nav-link add-home-btn" id="addHomeBtn" href="/listings/new">Add Your New Home</a>
         <% if(currentUser) { %>
         <a class="nav-link active" href="#">Welcome, <%= currentUser.username %></a>
@@ -39,5 +47,28 @@
     if (addHomeBtn && window.location.pathname === '/listings/new') {
       addHomeBtn.classList.add('active');
     }
+    
+    // Dark mode toggle functionality
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    
+    // Check for saved dark mode preference
+    const darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true';
+    
+    // Apply dark mode if preference is true
+    if (darkModeEnabled) {
+      document.body.classList.add('dark-mode');
+      darkModeToggle.checked = true;
+    }
+    
+    // Toggle dark mode on switch change
+    darkModeToggle.addEventListener('change', function() {
+      if (this.checked) {
+        document.body.classList.add('dark-mode');
+        localStorage.setItem('darkModeEnabled', 'true');
+      } else {
+        document.body.classList.remove('dark-mode');
+        localStorage.setItem('darkModeEnabled', 'false');
+      }
+    });
   });
 </script>
