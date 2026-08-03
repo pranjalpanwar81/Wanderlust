@@ -28,7 +28,7 @@
           <i class="fa-solid fa-moon dark-mode-icon dark-icon"></i>
         </div>
         <a class="nav-link add-home-btn" id="addHomeBtn" href="/listings/new">Add Your New Home</a>
-        <% if(currentUser) { %>
+        <% if (typeof currentUser !== 'undefined' && currentUser) { %>
         <a class="nav-link active" href="#">Welcome, <%= currentUser.username %></a>
         <a class="nav-link" href="/logout"><b>Logout</b></a>
         <% } else { %>
