@@ -1,9 +1,174 @@
 # Wanderlust
 
-Wanderlust is a server-rendered travel-stay listing demo built with Node.js, Express, MongoDB and EJS. It demonstrates CRUD flows for listings and nested reviews, basic user authentication, and a responsive Bootstrap-based UI with dark mode support.
+Wanderlust is a simple, server-rendered travel-stay listing application built with Node.js, Express, MongoDB and EJS templates. It is intended as a demonstration / portfolio project showing common full-stack patterns: RESTful routing, nested resources (listings + reviews), user authentication, server-side validation, and responsive UI with light/dark theme support.
 
-This README provides a compact reference with the project's purpose, features, tech stack, setup steps, and a concise list of routes and models.
+This README is a concise, standalone reference that explains what the project does, how to run it locally, and where to find the important code paths.
 
+---
+
+## Quick Overview
+
+- Purpose: demo a listings app (create / browse / review stays) with clean server-rendered views.
+- Audience: learners, interviewers, or anyone evaluating a small full-stack Node/Express app.
+- Not production-ready: intended for local demos and learning (no cloud image storage, no production auth hardening).
+
+---
+
+## Key Features
+
+- Full CRUD for listings (title, description, image, price, location)
+- Reviews with 1–5 star rating and text comment
+- Basic signup/login flow with session-based auth
+- Server-side request validation using Joi schemas
+- Responsive UI (Bootstrap) with a dark-mode theme
+- Seed script to populate demo listings
+
+---
+
+## Tech Stack
+
+- Node.js (runtime)
+- Express (web framework)
+- MongoDB + Mongoose (database)
+- EJS (server-side templating)
+- Bootstrap + custom CSS (UI)
+
+---
+
+## Local Setup
+
+1. Clone the repository and install dependencies:
+
+```bash
+git clone https://github.com/pranjalpanwar81/Wanderlust.git
+cd Wanderlust
+npm install
+```
+
+2. Start MongoDB (example for a local server):
+
+```bash
+# run the MongoDB server (example path may vary)
+mongod --dbpath ~/mongodb-data
+```
+
+3. (Optional) Seed demo data:
+
+```bash
+node init/index.js
+```
+
+4. Start the app:
+
+```bash
+node app.js
+```
+
+5. Open `http://localhost:8080` in your browser.
+
+Environment variables (optional):
+
+- `DB_URL`: MongoDB connection string (defaults to mongodb://127.0.0.1:27017/wanderlust)
+- `MAP_TOKEN`: Map provider token for map display on listing pages
+- `SESSION_SECRET`: session signing secret
+
+Create a `.env` file or export these variables in your shell if needed.
+
+---
+
+## Project Structure (high level)
+
+```
+. / (repo root)
+├─ app.js                # Express app and middleware
+├─ models/               # Mongoose schemas (listing, review, user)
+├─ routes/               # Route definitions for listings, reviews, users
+├─ controllers/          # Controller functions (business logic)
+├─ views/                # EJS templates and layouts
+├─ public/               # Static assets: css, js, images
+├─ init/                 # Seed scripts for demo data
+├─ scripts/              # Utility scripts (e.g. capture screenshots)
+└─ README.md             # This file
+```
+
+---
+
+## Data model summary
+
+- Listing
+    - title, description, price
+    - image: { url, filename }
+    - location, country
+    - owner (User reference)
+    - reviews: array of Review references
+
+- Review
+    - rating (1..5), comment
+    - author (User reference)
+
+- User
+    - username, email, password (hashed)
+
+Important: when a listing is deleted the implementation removes its reviews to keep data consistent.
+
+---
+
+## Routes (quick reference)
+
+Listings
+
+- `GET /listings` — index
+- `GET /listings/new` — create form
+- `POST /listings` — create
+- `GET /listings/:id` — show
+- `GET /listings/:id/edit` — edit form
+- `PUT /listings/:id` — update
+- `DELETE /listings/:id` — delete
+
+Reviews (nested)
+
+- `POST /listings/:id/reviews` — add review
+- `DELETE /listings/:id/reviews/:reviewId` — remove review
+
+Auth
+
+- `GET /signup`, `POST /users/signup`
+- `GET /login`, `POST /login`
+- `POST /logout`
+
+---
+
+## Styling & Theming
+
+- Primary site accent: orange `#ff5722` (used on buttons and highlights)
+- Dark mode implemented via `body.dark-mode` with CSS overrides in `public/css/style.css`
+
+---
+
+## Useful scripts
+
+- `npm start` — start the app
+- `npm run dev` — start in development with `nodemon` (if configured)
+- `node init/index.js` — populate demo data
+- `node scripts/capture-screenshots.js` — optional screenshot capture (requires Puppeteer and the site running)
+
+---
+
+## Notes for developers
+
+- Validation: Joi schemas in `schema.js` validate listing and review payloads.
+- Error handling: async handlers are wrapped to forward errors to central middleware.
+- File uploads: currently handled locally; consider cloud storage for production.
+
+---
+
+## Contribution & License
+
+Contributions are welcome — open issues or PRs with focused changes. The project is distributed under the ISC license.
+
+---
+
+If you want a different README format (longer with diagrams, or shorter), tell me what to include and I'll update it.
 ---
 
 ## Key features
