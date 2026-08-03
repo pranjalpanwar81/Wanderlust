@@ -218,5 +218,3 @@ Open `http://localhost:8080` in your browser.
 ISC
 
 ---
-
-If you want a longer README (diagrams, examples, screenshots), I can expand it later.
