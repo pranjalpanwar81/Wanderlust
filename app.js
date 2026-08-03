@@ -185,9 +185,10 @@ app.get("/demouser", async (req, res, next) => {
   }
 });
 
-// app.get("/", (req, res) => {
-//   res.send("Hi, I am root");
-// });
+// Redirect root to listings for a proper homepage
+app.get('/', (req, res) => {
+  return res.redirect('/listings');
+});
 
 
 app.use("/listings/:id/reviews", reviewrouter);
