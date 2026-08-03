@@ -74,9 +74,10 @@ async function connectWithRetry(url, { retries = 5, minDelay = 1000 } = {}) {
   const opts = {
     serverSelectionTimeoutMS: 10000,
     socketTimeoutMS: 45000,
-    // use unified topology by default in recent mongoose versions
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true,
   };
 
   for (let attempt = 1; attempt <= retries; attempt++) {
