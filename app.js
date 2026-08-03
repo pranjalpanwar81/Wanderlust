@@ -56,16 +56,55 @@ const userRouter = require("./routes/user.js");
 // calling mongoose.connect(undefined) which throws an assertion error
 const dbUrl = process.env.ATLASDB_URL || "mongodb://127.0.0.1:27017/wanderlust";
 
-main()
-  .then(() => {
-    console.log("connected to DB");
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+// Improved connection helper: retry with exponential backoff and redacted logging
+async function connectWithRetry(url, { retries = 5, minDelay = 1000 } = {}) {
+  const redacted = (() => {
+    try {
+      if (!url) return '<<no-url-provided>>';
+      // show only host information
+      const u = new URL(url.replace('mongodb+srv://', 'http://'));
+      return `${u.hostname}${u.port ? ':' + u.port : ''}`;
+    } catch (e) {
+      return '<<invalid-url>>';
+    }
+  })();
+
+  console.log(`Attempting MongoDB connection to ${redacted}`);
+
+  const opts = {
+    serverSelectionTimeoutMS: 10000,
+    socketTimeoutMS: 45000,
+    // use unified topology by default in recent mongoose versions
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  };
+
+  for (let attempt = 1; attempt <= retries; attempt++) {
+    try {
+      await mongoose.connect(url, opts);
+      console.log('MongoDB connected');
+      return;
+    } catch (err) {
+      console.error(`Mongo connection attempt ${attempt} failed:`);
+      console.error(err && err.message ? err.message : err);
+      if (attempt === retries) {
+        console.error('All MongoDB connection attempts failed.');
+        throw err;
+      }
+      const delay = minDelay * Math.pow(2, attempt - 1);
+      console.log(`Retrying in ${delay}ms...`);
+      await new Promise((res) => setTimeout(res, delay));
+    }
+  }
+}
+
+main().catch((err) => {
+  console.error('Failed to establish MongoDB connection:');
+  console.error(err && err.stack ? err.stack : err);
+});
 
 async function main() {
-  await mongoose.connect(dbUrl);
+  await connectWithRetry(dbUrl, { retries: 5, minDelay: 1000 });
 }
  
 app.set("view engine", "ejs");
