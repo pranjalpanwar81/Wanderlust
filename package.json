@@ -5,10 +5,10 @@
   "name": "majorproject",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "app.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./start.sh",
+    "start": "node app.js",
     "predev": "bash -lc 'lsof -ti :8080 -sTCP:LISTEN -nP | xargs -r kill -9; lsof -ti :3000 -sTCP:LISTEN -nP | xargs -r kill -9 || true'",
     "dev": "npm run predev && concurrently \"nodemon --delay 500ms app.js\" \"bash -lc 'sleep 0.5; nodemon --delay 700ms classroom/server.js --watch classroom --ext js,ejs'\"",
     "dev:main": "nodemon app.js",
