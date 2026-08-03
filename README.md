@@ -1,22 +1,142 @@
-# Wanderlust — Travel-stay Listing Platform
+# Wanderlust
 
-This README describes the Wanderlust project: a server-rendered travel-stay listings demo app built with Node.js, Express and MongoDB. The document is intended to provide a single reference that explains the architecture, data model, routes, developer setup, available scripts, and how to run the project locally. It intentionally does not embed screenshots — place any visual proof in `docs/screenshots/` if needed, but the screenshots section is left empty by default.
+Wanderlust is a server-rendered travel-stay listing demo built with Node.js, Express, MongoDB and EJS. It demonstrates CRUD flows for listings and nested reviews, basic user authentication, and a responsive Bootstrap-based UI with dark mode support.
 
-Table of contents
+This README provides a compact reference with the project's purpose, features, tech stack, setup steps, and a concise list of routes and models.
 
-- Overview
-- Architecture & diagrams
-- Data models
-- REST routes
-- Pages and UI overview
-- Developer setup (local)
-- Seed data
-- Scripts and automation
-- Testing and linting
-- Deployment notes
-- Contributing
-- License
+---
 
+## Key features
+
+- Create, edit, delete travel listings (title, description, image, price, location)
+- Add, list and delete reviews with star ratings and comments
+- User signup/login and session-based authentication
+- Server-side validation (Joi) and centralized error handling
+- Responsive UI with light/dark theme toggling
+
+---
+
+## Tech stack
+
+- Node.js + Express
+- MongoDB + Mongoose
+- Server-rendered views with EJS
+- Bootstrap + custom CSS for styling
+
+---
+
+## Quick start (local)
+
+1. Clone and install dependencies
+
+```bash
+git clone https://github.com/pranjalpanwar81/Wanderlust.git
+cd Wanderlust
+npm install
+```
+
+2. Start MongoDB (local) and seed demo data (optional)
+
+```bash
+# run MongoDB (example)
+mongod --dbpath ~/mongodb-data
+
+# seed sample listings (optional)
+node init/index.js
+```
+
+3. Start the app
+
+```bash
+node app.js
+```
+
+4. Open `http://localhost:8080` in your browser.
+
+Environment variables (optional):
+
+- `DB_URL` — MongoDB connection string (default: mongodb://127.0.0.1:27017/wanderlust)
+- `MAP_TOKEN` — map provider token used by the listing page
+- `SESSION_SECRET` — session secret
+
+---
+
+## Important files & folders
+
+- `app.js` — application entry and middleware
+- `models/` — Mongoose schemas (`listing.js`, `review.js`, `user.js`)
+- `routes/` — route definitions for listings, reviews, users
+- `views/` — EJS templates and layouts
+- `public/` — CSS, client JS and static assets
+- `init/` — seed script for demo data
+
+---
+
+## Data model summary
+
+- Listing: title, description, price, image, location, country, owner, reviews[]
+- Review: rating (1-5), comment, author
+- User: username, email, hashed password
+
+Notes: Deleting a listing cascades to remove its reviews to avoid orphaned data.
+
+---
+
+## Key routes (quick reference)
+
+Listings
+
+- `GET /listings` — index
+- `GET /listings/new` — new listing form
+- `POST /listings` — create listing
+- `GET /listings/:id` — show listing with reviews
+- `GET /listings/:id/edit` — edit form
+- `PUT /listings/:id` — update listing
+- `DELETE /listings/:id` — delete listing
+
+Reviews (nested)
+
+- `POST /listings/:id/reviews` — create review
+- `DELETE /listings/:id/reviews/:reviewId` — delete review
+
+Auth
+
+- `GET /signup`, `POST /users/signup`
+- `GET /login`, `POST /login`
+- `POST /logout`
+
+---
+
+## Scripts
+
+- `npm start` — start the app
+- `npm run dev` — start with nodemon for development
+- `node init/index.js` — seed demo data
+- `node scripts/capture-screenshots.js` — optional script to capture screenshots (requires Puppeteer and a running site)
+
+---
+
+## Development notes
+
+- Validation: Joi schemas are used to validate incoming listing and review payloads before persistence.
+- Error handling: async route handlers use a wrapper to forward errors to a centralized handler which renders `views/error.ejs`.
+- Styling: main CSS is `public/css/style.css` (contains dark-mode rules under `body.dark-mode`).
+
+---
+
+## Screenshots / Proof
+
+The repository contains a `docs/screenshots/` folder for optional proof images. The README intentionally leaves this area empty — add images there if you want to include visual proof.
+
+---
+
+## License & author
+
+ISC License — author: pranjalpanwar81
+
+---
+
+If you want a different README style (shorter/longer, with diagrams, or formatted for a portfolio), tell me which format and I'll update it.
 ---
 
 ## Overview
