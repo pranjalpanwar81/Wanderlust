@@ -1,8 +1,16 @@
 const Listing = require("../models/listing");
 const normalizeListing = require("../utils/normalizeListing.js");
-const mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
-const mapToken = process.env.MAP_TOKEN;
-const geocodingClient = mbxGeocoding({ accessToken: mapToken });
+let mbxGeocoding;
+let geocodingClient;
+
+// Only initialize MapBox if token is available
+if (process.env.MAP_TOKEN) {
+  mbxGeocoding = require('@mapbox/mapbox-sdk/services/geocoding');
+  geocodingClient = mbxGeocoding({ accessToken: process.env.MAP_TOKEN });
+} else {
+  console.warn('MAP_TOKEN not found in environment variables. Geocoding features will be disabled.');
+  geocodingClient = null;
+}
 
 
 module.exports.index = async (req, res) => {
@@ -113,22 +121,30 @@ module.exports.createListing = async (req, res, next) => {
     console.log("Country:", listingData.country);
     
     // Geocode the location to get coordinates
-    let response = await geocodingClient
-      .forwardGeocode({
-        query: `${listingData.location}, ${listingData.country}`,
-        limit: 1
-      })
-      .send();
-    
-    if (response.body.features && response.body.features.length > 0) {
-      listingData.geometry = {
-        type: 'Point',
-        coordinates: response.body.features[0].geometry.coordinates
-      };
-      console.log("Geocoded coordinates:", listingData.geometry);
-      console.log("Geocoded location name:", response.body.features[0].place_name);
+    if (geocodingClient) {
+      let response = await geocodingClient
+        .forwardGeocode({
+          query: `${listingData.location}, ${listingData.country}`,
+          limit: 1
+        })
+        .send();
+      
+      if (response.body.features && response.body.features.length > 0) {
+        listingData.geometry = {
+          type: 'Point',
+          coordinates: response.body.features[0].geometry.coordinates
+        };
+        console.log("Geocoded coordinates:", listingData.geometry);
+        console.log("Geocoded location name:", response.body.features[0].place_name);
+      } else {
+        console.log("Geocoding failed, no features found. Using default coordinates.");
+        listingData.geometry = {
+          type: 'Point',
+          coordinates: [77.2090, 28.6139] // Default to Delhi coordinates
+        };
+      }
     } else {
-      console.log("Geocoding failed, no features found. Using default coordinates.");
+      console.log("Geocoding client not available. Using default coordinates.");
       listingData.geometry = {
         type: 'Point',
         coordinates: [77.2090, 28.6139] // Default to Delhi coordinates
@@ -178,20 +194,28 @@ module.exports.updateListing = async (req, res) => {
     const locationToGeocode = listing.location || existingListing.location;
     const countryToGeocode = listing.country || existingListing.country;
     
-    let response = await geocodingClient
-      .forwardGeocode({
-        query: `${locationToGeocode}, ${countryToGeocode}`,
-        limit: 1
-      })
-      .send();
-    
-    if (response.body.features && response.body.features.length > 0) {
-      listing.geometry = {
-        type: 'Point',
-        coordinates: response.body.features[0].geometry.coordinates
-      };
+    if (geocodingClient) {
+      let response = await geocodingClient
+        .forwardGeocode({
+          query: `${locationToGeocode}, ${countryToGeocode}`,
+          limit: 1
+        })
+        .send();
+      
+      if (response.body.features && response.body.features.length > 0) {
+        listing.geometry = {
+          type: 'Point',
+          coordinates: response.body.features[0].geometry.coordinates
+        };
+      } else {
+        console.log("Geocoding failed, no features found. Using default coordinates.");
+        listing.geometry = {
+          type: 'Point',
+          coordinates: [77.2090, 28.6139] // Default to Delhi coordinates
+        };
+      }
     } else {
-      console.log("Geocoding failed, no features found. Using default coordinates.");
+      console.log("Geocoding client not available. Using default coordinates.");
       listing.geometry = {
         type: 'Point',
         coordinates: [77.2090, 28.6139] // Default to Delhi coordinates
@@ -203,7 +227,7 @@ module.exports.updateListing = async (req, res) => {
   await Listing.findByIdAndUpdate(id, { ...updatedListing }, { new: true, runValidators: true });
   req.flash("success", "Listing updated successfully!");
   res.redirect(`/listings/${id}`);
-};
+}
 
 module.exports.deleteListing = async (req, res) => {
   let { id } = req.params;

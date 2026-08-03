@@ -213,6 +213,17 @@ body.dark-mode {
   color: #e0e0e0 !important;
 }
 
+/* Text selection in dark mode */
+body.dark-mode ::selection {
+  background-color: #ff5722 !important;
+  color: white !important;
+}
+
+body.dark-mode ::-moz-selection {
+  background-color: #ff5722 !important;
+  color: white !important;
+}
+
 /* Logo Animation */
 .logo-animation {
   animation: logoEntrance 1.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -291,8 +302,8 @@ body.dark-mode {
   font-size: 150px;
   margin-bottom: 20px;
   animation: splashLogoAnim 2.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  color: #667eea;
-  filter: drop-shadow(0 0 30px rgba(102, 126, 234, 0.3));
+  color: #ff5722;
+  filter: drop-shadow(0 0 30px rgba(255, 87, 34, 0.35));
   position: relative;
 }
 
@@ -302,7 +313,7 @@ body.dark-mode {
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(255, 87, 34, 0.25) 0%, transparent 70%);
   animation: pulse 2s ease-in-out infinite;
 }
 
@@ -534,6 +545,236 @@ body.dark-mode .price-btn {
   border-color: #505050 !important;
 }
 
+body.dark-mode .sort-btn span,
+body.dark-mode .price-btn span {
+  color: #e0e0e0 !important;
+}
+
+/* Ensure all text is visible on grey backgrounds in dark mode */
+body.dark-mode .sort-btn *,
+body.dark-mode .price-btn *,
+body.dark-mode .filter-item *,
+body.dark-mode .search-input *,
+body.dark-mode .search-button * {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .sort-btn:hover *,
+body.dark-mode .price-btn:hover *,
+body.dark-mode .filter-item:hover * {
+  color: #e0e0e0 !important;
+}
+
+/* Active/selected elements in dark mode */
+body.dark-mode .sort-btn.active,
+body.dark-mode .price-btn.active,
+body.dark-mode .filter-item.active {
+  background-color: #e0e0e0 !important;
+  border-color: #e0e0e0 !important;
+}
+
+body.dark-mode .sort-btn.active *,
+body.dark-mode .price-btn.active *,
+body.dark-mode .filter-item.active *,
+body.dark-mode .sort-btn.active span,
+body.dark-mode .price-btn.active span,
+body.dark-mode .filter-item.active span {
+  color: #333 !important;
+}
+
+/* Dropdown menu items in dark mode */
+body.dark-mode .sort-menu-item,
+body.dark-mode .price-menu-item {
+  color: #e0e0e0 !important;
+  background-color: #2d2d2d !important;
+}
+
+body.dark-mode .sort-menu-item:hover,
+body.dark-mode .price-menu-item:hover {
+  background-color: #3d3d3d !important;
+  color: white !important;
+}
+
+body.dark-mode .sort-menu-item.selected,
+body.dark-mode .price-menu-item.selected {
+  background-color: #e0e0e0 !important;
+  color: #333 !important;
+}
+
+body.dark-mode .sort-menu-item.selected *,
+body.dark-mode .price-menu-item.selected *,
+body.dark-mode .sort-menu-item.selected span,
+body.dark-mode .price-menu-item.selected span {
+  color: #333 !important;
+}
+
+/* Ensure all dropdown content is visible */
+body.dark-mode .sort-menu *,
+body.dark-mode .price-menu * {
+  color: #e0e0e0 !important;
+}
+
+/* Override selected items specifically */
+body.dark-mode .sort-menu .selected *,
+body.dark-mode .price-menu .selected * {
+  color: #333 !important;
+}
+
+body.dark-mode .sort-menu .selected,
+body.dark-mode .price-menu .selected {
+  background-color: #e0e0e0 !important;
+  color: #333 !important;
+}
+
+/* Ensure all dark grey backgrounds have light text */
+body.dark-mode .sort-menu li,
+body.dark-mode .price-menu li,
+body.dark-mode .sort-menu-item,
+body.dark-mode .price-menu-item {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .sort-menu li[style*="background"],
+body.dark-mode .price-menu li[style*="background"],
+body.dark-mode .sort-menu-item[style*="background"],
+body.dark-mode .price-menu-item[style*="background"] {
+  color: #e0e0e0 !important;
+}
+
+/* Handle dynamically styled elements */
+body.dark-mode .sort-menu li[style*="#2d2d2d"],
+body.dark-mode .price-menu li[style*="#2d2d2d"],
+body.dark-mode .sort-menu li[style*="#3d3d3d"],
+body.dark-mode .price-menu li[style*="#3d3d3d"],
+body.dark-mode .sort-menu li[style*="#4d4d4d"],
+body.dark-mode .price-menu li[style*="#4d4d4d"] {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .sort-menu li[style*="#e0e0e0"],
+body.dark-mode .price-menu li[style*="#e0e0e0"],
+body.dark-mode .sort-menu li[style*="#d0d0d0"],
+body.dark-mode .price-menu li[style*="#d0d0d0"] {
+  color: #333 !important;
+}
+
+/* Force all dropdown items to have visible text */
+body.dark-mode .sort-menu li *,
+body.dark-mode .price-menu li *,
+body.dark-mode .sort-menu-item *,
+body.dark-mode .price-menu-item * {
+  color: inherit !important;
+}
+
+/* Fix white background elements in dark mode */
+body.dark-mode input[type="number"],
+body.dark-mode input[type="text"],
+body.dark-mode input[type="range"],
+body.dark-mode .form-control,
+body.dark-mode input,
+body.dark-mode textarea,
+body.dark-mode select {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-color: #505050 !important;
+}
+
+body.dark-mode input[type="number"]::placeholder,
+body.dark-mode input[type="text"]::placeholder,
+body.dark-mode .form-control::placeholder,
+body.dark-mode textarea::placeholder {
+  color: #999999 !important;
+}
+
+/* White background elements should have dark text */
+body.dark-mode [style*="background: white"],
+body.dark-mode [style*="background: #fff"],
+body.dark-mode [style*="background: #ffffff"],
+body.dark-mode [style*="background-color: white"],
+body.dark-mode [style*="background-color: #fff"],
+body.dark-mode [style*="background-color: #ffffff"] {
+  color: #333333 !important;
+}
+
+body.dark-mode [style*="background: white"] *,
+body.dark-mode [style*="background: #fff"] *,
+body.dark-mode [style*="background: #ffffff"] *,
+body.dark-mode [style*="background-color: white"] *,
+body.dark-mode [style*="background-color: #fff"] *,
+body.dark-mode [style*="background-color: #ffffff"] * {
+  color: #333333 !important;
+}
+
+/* Any element with white background class */
+body.dark-mode .bg-white,
+body.dark-mode [class*="bg-white"] {
+  background-color: #ffffff !important;
+  color: #333333 !important;
+}
+
+body.dark-mode .bg-white *,
+body.dark-mode [class*="bg-white"] * {
+  color: #333333 !important;
+}
+
+/* Fix selected dropdown items specifically */
+body.dark-mode .sort-menu .active,
+body.dark-mode .price-menu .active,
+body.dark-mode .sort-menu-item.active,
+body.dark-mode .price-menu-item.active {
+  background-color: #e0e0e0 !important;
+  color: #333333 !important;
+}
+
+body.dark-mode .sort-menu .active *,
+body.dark-mode .price-menu .active *,
+body.dark-mode .sort-menu-item.active *,
+body.dark-mode .price-menu-item.active * {
+  color: #333333 !important;
+}
+
+/* Ensure any element that looks selected has visible text */
+body.dark-mode .sort-menu li[aria-selected="true"],
+body.dark-mode .price-menu li[aria-selected="true"] {
+  background-color: #e0e0e0 !important;
+  color: #333333 !important;
+}
+
+body.dark-mode .sort-menu li[aria-selected="true"] *,
+body.dark-mode .price-menu li[aria-selected="true"] * {
+  color: #333333 !important;
+}
+
+/* Force all dropdown text to be visible regardless of background */
+body.dark-mode .sort-menu *,
+body.dark-mode .price-menu * {
+  color: #e0e0e0 !important;
+}
+
+/* Then override selected items */
+body.dark-mode .sort-menu .selected *,
+body.dark-mode .price-menu .selected *,
+body.dark-mode .sort-menu .active *,
+body.dark-mode .price-menu .active *,
+body.dark-mode .sort-menu-item.selected *,
+body.dark-mode .price-menu-item.selected *,
+body.dark-mode .sort-menu-item.active *,
+body.dark-mode .price-menu-item.active * {
+  color: #333333 !important;
+}
+
+body.dark-mode .sort-menu li,
+body.dark-mode .price-menu li {
+  color: #e0e0e0 !important;
+  background-color: #2d2d2d !important;
+}
+
+body.dark-mode .sort-menu li:hover,
+body.dark-mode .price-menu li:hover {
+  background-color: #3d3d3d !important;
+  color: white !important;
+}
+
 body.dark-mode .sort-btn:hover,
 body.dark-mode .price-btn:hover {
   background: #3d3d3d !important;
@@ -604,6 +845,10 @@ body.dark-mode .f-info-social i {
 
 body.dark-mode .f-info-social i:hover {
   color: #ff5722 !important;
+}
+
+body.dark-mode .f-info-creator {
+  color: #e0e0e0 !important;
 }
 
 /* Listing name/title background */
@@ -1136,6 +1381,43 @@ body.dark-mode .auth-link:hover {
   color: #ff9800;
 }
 
+/* Inline login/signup containers (views have local styles) */
+body.dark-mode .login-form-container,
+body.dark-mode .signup-form-container {
+  background-color: #1a1a1a !important;
+  border: 1px solid #333 !important;
+  box-shadow: none !important;
+  color: #e0e0e0;
+}
+
+body.dark-mode .login-form-container h1,
+body.dark-mode .signup-form-container h1 {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .login-form-container p.text-muted,
+body.dark-mode .signup-form-container p.text-muted {
+  color: #bdbdbd !important;
+}
+
+body.dark-mode .login-form-container .form-control,
+body.dark-mode .signup-form-container .form-control {
+  background-color: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border: 1px solid #505050 !important;
+}
+
+body.dark-mode .login-form-container .form-control:focus,
+body.dark-mode .signup-form-container .form-control:focus {
+  box-shadow: 0 0 0 3px rgba(255,87,34,0.08) !important;
+  border-color: #ff5722 !important;
+}
+
+body.dark-mode .login-form-container a,
+body.dark-mode .signup-form-container a {
+  color: #ff5722 !important;
+}
+
 /* Edit/New listing page dark mode */
 body.dark-mode .form-card {
   background-color: #1a1a1a;
@@ -1173,7 +1455,7 @@ Footer{
         text-decoration: underline;
     }
     
-    .f-info-links, .f-info-social, .f-info-brand{
+    .f-info-links, .f-info-social, .f-info-brand, .f-info-creator{
         width: 100%;
         display: flex;
         align-items: center;
@@ -1197,8 +1479,82 @@ Footer{
 }   
 
 .listing-card{
-    border: none !important;
-    margin-bottom: 2rem;
+  border: none !important;
+  margin-bottom: 2rem;
+  transition: none !important;
+}
+
+/* Disable hover pop-out: no transform or shadow */
+.listing-card:hover{
+  transform: none !important;
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+body.dark-mode .listing-card:hover {
+  box-shadow: none !important;
+  background-color: transparent !important;
+}
+
+/* Override any Bootstrap card hover effects */
+.listing-card:hover,
+.card:hover .listing-card {
+    background-color: transparent !important;
+}
+
+body.dark-mode .listing-card:hover,
+body.dark-mode .card:hover .listing-card {
+    background-color: transparent !important;
+}
+
+/* Force all child elements to be transparent on hover */
+.listing-card:hover *,
+.card:hover .listing-card * {
+    background-color: transparent !important;
+}
+
+body.dark-mode .listing-card:hover *,
+body.dark-mode .card:hover .listing-card * {
+    background-color: transparent !important;
+}
+
+/* Override Bootstrap card hover effects completely */
+.card:hover,
+.listing-card:hover,
+.card-body:hover,
+.card-text:hover {
+    background-color: transparent !important;
+}
+
+body.dark-mode .card:hover,
+body.dark-mode .listing-card:hover,
+body.dark-mode .card-body:hover,
+body.dark-mode .card-text:hover {
+    background-color: transparent !important;
+}
+
+/* Force all card-related elements to have no background on hover */
+.listing-card .card-body:hover,
+.listing-card .card-text:hover,
+.listing-card .show-detail-row:hover,
+.listing-card .show-chip-row:hover {
+    background-color: transparent !important;
+}
+
+body.dark-mode .listing-card .card-body:hover,
+body.dark-mode .listing-card .card-text:hover,
+body.dark-mode .listing-card .show-detail-row:hover,
+body.dark-mode .listing-card .show-chip-row:hover {
+    background-color: transparent !important;
+}
+
+/* Universal hover background removal for listing cards */
+.listing-card:hover *:not(.card-img-top) {
+    background-color: transparent !important;
+}
+
+body.dark-mode .listing-card:hover *:not(.card-img-top) {
+    background-color: transparent !important;
 }
 
 .card-img-top{
@@ -1222,13 +1578,16 @@ Footer{
 /* Card Effect */
 
 .card-img-overlay{
-    opacity: 0;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  background: transparent;
+  pointer-events: none;
 }
 
+/* Keep overlay transparent on hover so the card doesn't change color */
 .card-img-overlay:hover{
-    opacity: 0.1;
-    background-color: white;
-   
+  opacity: 0;
+  background: transparent;
 }
 
 .add-btn{
