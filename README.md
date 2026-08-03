@@ -1,10 +1,6 @@
 # Wanderlust
 
-- Project logo: (place your logo at `docs/assets/logo.png` and it will render here)
-
 Wanderlust is a lightweight travel-stay listings demo built with Node.js, Express, MongoDB and EJS. It demonstrates CRUD workflows for listings, nested reviews, simple session-based authentication, server-side validation, and a responsive UI with dark-mode.
-
-Badges: none
 
 ## :ledger: Index
 
