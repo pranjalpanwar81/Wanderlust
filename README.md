@@ -169,3 +169,24 @@ The `classroom/` directory is intentionally kept separate from Wanderlust. It is
 ## License
 
 This project is licensed under the [ISC License](https://opensource.org/license/isc-license-txt/).
+
+---
+
+## Proof / Screenshots
+
+Include visual proof of the running application by adding screenshots to the `docs/screenshots/` folder. Suggested filenames (the README will render them when present):
+
+- `docs/screenshots/home.png` — Homepage / listing grid
+- `docs/screenshots/listing_show.png` — Listing detail page (show view)
+- `docs/screenshots/signup.png` — Sign up form
+- `docs/screenshots/login.png` — Login form
+
+Example Markdown that will display automatically when images are present:
+
+![Homepage](docs/screenshots/home.png)
+
+![Listing page](docs/screenshots/listing_show.png)
+
+![Signup](docs/screenshots/signup.png)
+
+If you'd like, upload the screenshots here or place them at `docs/screenshots/` locally and I can commit them for you.
