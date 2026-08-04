@@ -1,0 +1,23 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    # Every 5 minutes
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Render URL
+        env:
+          RENDER_URL: ${{ secrets.RENDER_URL }}
+        run: |
+          if [ -z "$RENDER_URL" ]; then
+            echo "Required secret RENDER_URL is not set. Set it in repo Settings → Secrets."
+            exit 1
+          fi
+          echo "Pinging $RENDER_URL"
+          # Attempt to fetch; don't fail the workflow on non-200 to avoid noisy failures
+          curl -fsS "$RENDER_URL" -o /dev/null || echo "Ping failed or non-2xx response"
