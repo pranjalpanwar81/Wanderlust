@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <rect width="100%" height="100%" rx="8" fill="transparent" />
+  <!-- Outer ring -->
+  <circle cx="32" cy="32" r="26" fill="none" stroke="#ff6a00" stroke-width="6" />
+  <!-- Compass needle / diamond -->
+  <g transform="translate(32,32) rotate(20)">
+    <polygon points="0,-14 8,0 0,14 -8,0" fill="#ff6a00" />
+    <polygon points="0,-8 4,0 0,8 -4,0" fill="#ffffff" />
+  </g>
+</svg>
