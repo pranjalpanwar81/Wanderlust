@@ -2,6 +2,7 @@
 <input type="hidden" id="mapToken" value="<%= process.env.MAP_TOKEN %>">
 <input type="hidden" id="listingCoordinates" value="<%= (listing.geometry && listing.geometry.coordinates) ? listing.geometry.coordinates.join(',') : '77.2090,28.6139' %>">
 <input type="hidden" id="listingLocation" value="<%= listing.location %>, <%= listing.country %>">
+<input type="hidden" id="currentListingId" value="<%= listing._id %>">
 <% if (listing.geometry && listing.geometry.coordinates) { %>
 <input type="hidden" id="debugCoords" value="<%= listing.geometry.coordinates %>">
 <% } %> 
@@ -29,6 +30,71 @@
       <span class="show-chip"><%= listing.location %></span>
       <span class="show-chip"><%= listing.country %></span>
     </div>
+    
+    <!-- Booking Section -->
+    <% if (currentUser) { %>
+    <div class="booking-section mt-4 p-4 border rounded" style="background-color: #f8f9fa; border-left: 4px solid #ff5722;">
+      <h5 class="mb-3" style="color: #333; font-weight: 600;">📅 Book This Listing</h5>
+      <form action="/listings/<%= listing._id %>/book" method="POST" class="booking-form">
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="startDate" class="form-label" style="font-weight: 500;">Check-in Date</label>
+            <input type="date" class="form-control" id="startDate" name="startDate" required style="padding: 10px;">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="startTime" class="form-label" style="font-weight: 500;">Check-in Time</label>
+            <input type="time" class="form-control" id="startTime" name="startTime" required style="padding: 10px;">
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label for="endDate" class="form-label" style="font-weight: 500;">Check-out Date</label>
+            <input type="date" class="form-control" id="endDate" name="endDate" required style="padding: 10px;">
+          </div>
+          <div class="col-md-6 mb-3">
+            <label for="endTime" class="form-label" style="font-weight: 500;">Check-out Time</label>
+            <input type="time" class="form-control" id="endTime" name="endTime" required style="padding: 10px;">
+          </div>
+        </div>
+        <button type="submit" class="btn btn-primary mt-2" style="background-color: #ff5722; border-color: #ff5722; padding: 10px 30px; font-weight: 600;">Book Now</button>
+      </form>
+      <div id="bookingStatus" class="mt-2"></div>
+    </div>
+    <% } else { %>
+    <div class="booking-section mt-4 p-4 border rounded" style="background-color: #f8f9fa; border-left: 4px solid #ff5722;">
+      <h5 class="mb-2" style="color: #333; font-weight: 600;">📅 Book This Listing</h5>
+      <p class="text-muted mb-0">Please <a href="/login" style="color: #ff5722; font-weight: 600;">log in</a> to book this listing.</p>
+    </div>
+    <% } %>
+    
+    <!-- Current Bookings Display -->
+    <% if (listing.bookings && listing.bookings.length > 0) { %>
+    <div class="current-bookings mt-4 p-4 border rounded" style="background-color: #f8f9fa; border-left: 4px solid #28a745;">
+      <h5 class="mb-3" style="color: #333; font-weight: 600;">📋 Current Bookings</h5>
+      <div id="bookingsList">
+        <% listing.bookings.forEach(function(booking) { %>
+          <% if (booking.status !== 'cancelled') { %>
+            <div class="booking-item p-3 mb-2 border rounded" style="background-color: white; border-left: 3px solid #28a745;">
+              <div style="font-size: 14px;">
+                <div style="margin-bottom: 5px;">
+                  <strong style="color: #333;">👤 User:</strong> 
+                  <span style="color: #666;"><%= booking.user && booking.user.username ? booking.user.username : 'Unknown' %></span>
+                </div>
+                <div style="margin-bottom: 5px;">
+                  <strong style="color: #333;">📅 Dates:</strong> 
+                  <span style="color: #666;"><%= new Date(booking.startDate).toLocaleDateString('en-GB') %> <%= new Date(booking.startDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) %> - <%= new Date(booking.endDate).toLocaleDateString('en-GB') %> <%= new Date(booking.endDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) %></span>
+                </div>
+                <div>
+                  <strong style="color: #333;">✅ Status:</strong> 
+                  <span style="color: #28a745; font-weight: 600;"><%= booking.status %></span>
+                </div>
+              </div>
+            </div>
+          <% } %>
+        <% }); %>
+      </div>
+    </div>
+    <% } %>
   </div>
   </div>
 
@@ -126,5 +192,78 @@
 </div>
   </div>
 <script src="/js/map.js"></script>
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  // Socket.IO for real-time booking updates
+  const socket = io();
+  const currentListingId = document.getElementById('currentListingId').value;
+  
+  // Listen for booking creation events
+  socket.on('bookingCreated', (data) => {
+    if (data.listingId === currentListingId) {
+      // Update the bookings list display
+      updateBookingsDisplay(data.booking);
+      
+      // Show notification
+      showNotification('New booking created for this listing!');
+    }
+  });
+  
+  // Listen for booking cancellation events
+  socket.on('bookingCancelled', (data) => {
+    if (data.listingId === currentListingId) {
+      // Remove the cancelled booking from display
+      removeBookingFromDisplay(data.bookingId);
+      
+      // Show notification
+      showNotification('A booking has been cancelled for this listing.');
+    }
+  });
+  
+  function updateBookingsDisplay(booking) {
+    const bookingsList = document.getElementById('bookingsList');
+    if (!bookingsList) return;
+    
+    const bookingItem = document.createElement('div');
+    bookingItem.className = 'booking-item p-3 mb-2 border rounded';
+    bookingItem.style = 'background-color: white; border-left: 3px solid #28a745;';
+    bookingItem.innerHTML = `
+      <div style="font-size: 14px;">
+        <div style="margin-bottom: 5px;">
+          <strong style="color: #333;">👤 User:</strong> 
+          <span style="color: #666;">Current User</span>
+        </div>
+        <div style="margin-bottom: 5px;">
+          <strong style="color: #333;">📅 Dates:</strong> 
+          <span style="color: #666;">${new Date(booking.startDate).toLocaleDateString('en-GB')} ${new Date(booking.startDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})} - ${new Date(booking.endDate).toLocaleDateString('en-GB')} ${new Date(booking.endDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})}</span>
+        </div>
+        <div>
+          <strong style="color: #333;">✅ Status:</strong> 
+          <span style="color: #28a745; font-weight: 600;">${booking.status}</span>
+        </div>
+      </div>
+    `;
+    
+    bookingsList.appendChild(bookingItem);
+  }
+  
+  function removeBookingFromDisplay(bookingId) {
+    // This would need more specific implementation to identify and remove specific bookings
+    // For now, we'll reload the page to get fresh data
+    setTimeout(() => {
+      location.reload();
+    }, 1000);
+  }
+  
+  function showNotification(message) {
+    const bookingStatus = document.getElementById('bookingStatus');
+    if (bookingStatus) {
+      bookingStatus.innerHTML = `<div class="alert alert-info">${message}</div>`;
+      setTimeout(() => {
+        bookingStatus.innerHTML = '';
+      }, 3000);
+    }
+  }
+</script>
   </body>
 </html>

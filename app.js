@@ -16,6 +16,9 @@ process.on('unhandledRejection', (reason) => {
 
 const express = require("express");
 const app = express();
+const http = require('http');
+const server = http.createServer(app);
+const io = require('socket.io')(server);
 const mongoose = require("mongoose");
 const Listing = require("./models/listing.js");
 const path = require("path");
@@ -51,6 +54,7 @@ module.exports.upload = upload;
 const listingRouter = require("./routes/listing.js");
 const reviewrouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
+const bookingRouter = require("./routes/booking.js");
 
 // default to local MongoDB if ATLASDB_URL isn't provided to avoid
 // calling mongoose.connect(undefined) which throws an assertion error
@@ -193,6 +197,7 @@ app.get('/', (req, res) => {
 
 app.use("/listings/:id/reviews", reviewrouter);
 app.use("/listings", listingRouter);
+app.use("/listings", bookingRouter);
 app.use("/users", userRouter);
 app.use("/", userRouter);
 
@@ -210,7 +215,19 @@ app.use((err, req, res, next) => {
 
 const PORT = process.env.PORT || 8080;
 
-const server = app.listen(PORT, () => {
+// Socket.IO setup for real-time inventory sync
+io.on('connection', (socket) => {
+  console.log('Client connected for real-time updates');
+
+  socket.on('disconnect', () => {
+    console.log('Client disconnected');
+  });
+});
+
+// Make io accessible to routes
+app.set('io', io);
+
+server.listen(PORT, () => {
   const dbUsed = (dbUrl && (dbUrl.includes('127.0.0.1') || dbUrl.includes('localhost'))) ? 'local MongoDB' : 'remote MongoDB (ATLAS or cloud)';
   console.log(`main app is listening on port ${PORT} — using ${dbUsed}`);
 });

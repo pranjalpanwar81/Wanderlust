@@ -49,6 +49,39 @@ const listingSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
+
+  // Booking-related fields
+  bookings: [
+    {
+      user: {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+      startDate: {
+        type: Date,
+        required: true,
+      },
+      endDate: {
+        type: Date,
+        required: true,
+      },
+      status: {
+        type: String,
+        enum: ['pending', 'confirmed', 'cancelled'],
+        default: 'pending',
+      },
+      bookedAt: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+
+  // Version field for optimistic concurrency control
+  __v: {
+    type: Number,
+    default: 0,
+  },
 });
 
 listingSchema.post("findOneAndDelete", async (listing) => {

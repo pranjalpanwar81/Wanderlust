@@ -114,6 +114,117 @@ This section helps contributors set up and understand the codebase.
 
 No build step is required for the server. If you add a front-end build tool later, include instructions here (e.g., Webpack, Vite).
 
+## :shield: Concurrency & Real-time Features
+
+### The Concurrency Problem
+
+In a multi-user environment, a critical issue can occur when two users attempt to book the same listing simultaneously. This is known as the "double-booking problem":
+
+**Scenario:**
+1. User A and User B both view the same listing page
+2. Both users select the same dates (e.g., Jan 15-20, 2024)
+3. User A clicks "Book Now" at 10:00:00.500
+4. User B clicks "Book Now" at 10:00:00.600
+5. Both requests reach the server nearly simultaneously
+6. Without proper concurrency control, both bookings could be accepted, leading to double-booking
+
+**Why This Happens:**
+- Traditional database operations aren't atomic by default
+- Between reading the listing data and writing the booking, another user can also read the same data
+- Race conditions occur when multiple operations access the same data concurrently
+
+### Our Solution: Optimistic Concurrency Control
+
+We implemented a robust solution using **Optimistic Concurrency Control (OCC)** with version checking:
+
+**Implementation Details:**
+
+1. **Version Field (__v):** Each listing document has a version field that increments on every update
+2. **Atomic Updates:** Booking operations use `findOneAndUpdate` with version checking
+3. **Retry Logic:** If a version conflict occurs, the operation automatically retries with exponential backoff
+4. **Overlap Detection:** Before booking, we check for date overlaps with existing confirmed bookings
+
+**Code Flow:**
+```javascript
+// Get current listing with version
+const listing = await Listing.findById(id).lean();
+
+// Check for overlapping bookings
+const hasOverlap = listing.bookings.some(booking => {
+  // Date overlap logic
+});
+
+// Atomic update with version check
+const updatedListing = await Listing.findOneAndUpdate(
+  { _id: id, __v: listing.__v }, // Version check
+  { $push: { bookings: newBooking }, $inc: { __v: 1 } },
+  { new: true }
+);
+
+if (!updatedListing) {
+  // Version mismatch - retry
+  retryWithBackoff();
+}
+```
+
+**Benefits:**
+- ✅ Prevents double-booking completely
+- ✅ Handles high-traffic scenarios gracefully
+- ✅ No database locks required (better performance)
+- ✅ Automatic retry on conflicts
+- ✅ Clear error messages for users
+
+### Real-time Inventory Sync with WebSockets
+
+To ensure all users see up-to-date booking information, we implemented real-time updates using Socket.IO:
+
+**Implementation:**
+
+1. **WebSocket Server:** Socket.IO server integrated with Express
+2. **Event Broadcasting:** When a booking is created/cancelled, emit events to all connected clients
+3. **Client-side Updates:** Frontend listens for events and updates UI without page refresh
+
+**Events:**
+- `bookingCreated` - Broadcasted when a new booking is confirmed
+- `bookingCancelled` - Broadcasted when a booking is cancelled
+
+**Code Flow:**
+```javascript
+// Server-side (booking route)
+const io = req.app.get('io');
+io.emit('bookingCreated', {
+  listingId: id,
+  booking: newBooking,
+  availableDates: getAvailableDates(updatedListing.bookings)
+});
+
+// Client-side (show.ejs)
+socket.on('bookingCreated', (data) => {
+  if (data.listingId === currentListingId) {
+    updateBookingsDisplay(data.booking);
+    showNotification('New booking created!');
+  }
+});
+```
+
+**Benefits:**
+- ✅ Instant updates across all user sessions
+- ✅ No page refresh required
+- ✅ Better user experience
+- ✅ Reduced server load (no polling needed)
+
+### Testing the Concurrency Solution
+
+To test the double-booking prevention:
+
+1. Open two browser windows with the same listing
+2. Log in as different users in each window
+3. Select the same dates simultaneously
+4. Click "Book Now" in both windows at the same time
+5. Only one booking should succeed; the other should show an error
+
+The system will automatically handle the conflict and ensure data integrity.
+
 ### :rocket: Deployment
 
 - Use environment variables for `DB_URL`, `MAP_TOKEN`, and `SESSION_SECRET`.

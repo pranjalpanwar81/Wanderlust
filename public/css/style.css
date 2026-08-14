@@ -1557,6 +1557,62 @@ body.dark-mode .listing-card:hover *:not(.card-img-top) {
     background-color: transparent !important;
 }
 
+/* Booking section dark mode styling */
+body.dark-mode .booking-section {
+  background-color: #2d2d2d !important;
+  border-color: #404040 !important;
+  border-left-color: #ff5722 !important;
+}
+
+body.dark-mode .booking-section h5 {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .booking-section .form-label {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .booking-section .form-control {
+  background-color: #1a1a1a !important;
+  color: #e0e0e0 !important;
+  border-color: #505050 !important;
+}
+
+body.dark-mode .booking-section .btn-primary {
+  background-color: #ff5722 !important;
+  border-color: #ff5722 !important;
+  color: white !important;
+}
+
+body.dark-mode .booking-section a {
+  color: #ff5722 !important;
+}
+
+/* Current bookings dark mode styling */
+body.dark-mode .current-bookings {
+  background-color: #2d2d2d !important;
+  border-color: #404040 !important;
+  border-left-color: #28a745 !important;
+}
+
+body.dark-mode .current-bookings h5 {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .booking-item {
+  background-color: #1a1a1a !important;
+  border-color: #404040 !important;
+  border-left-color: #28a745 !important;
+}
+
+body.dark-mode .booking-item strong {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode .booking-item span {
+  color: #ccc !important;
+}
+
 .card-img-top{
     border-radius: 1rem !important;
     width: 100% !important;
