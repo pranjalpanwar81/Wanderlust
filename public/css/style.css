@@ -1613,6 +1613,132 @@ body.dark-mode .booking-item span {
   color: #ccc !important;
 }
 
+/* Slot availability dark mode styling */
+body.dark-mode .slot-availability {
+  background-color: #2d2d2d !important;
+  border-color: #404040 !important;
+  border-left-color: #28a745 !important;
+}
+
+body.dark-mode .slot-availability span {
+  color: #e0e0e0 !important;
+}
+
+body.dark-mode #availableSlots {
+  color: #28a745 !important;
+}
+
+body.dark-mode #noSlotsMessage {
+  background-color: #5a2a2a !important;
+  border-color: #7a3a3a !important;
+}
+
+body.dark-mode #noSlotsMessage h6 {
+  color: #ff6b6b !important;
+}
+
+body.dark-mode #noSlotsMessage p {
+  color: #ff6b6b !important;
+}
+
+/* Booking button hover states */
+.booking-form .btn-primary:hover,
+.booking-section .btn-primary:hover {
+  background-color: #e64a19 !important;
+  border-color: #e64a19 !important;
+  color: white !important;
+  background-image: none !important;
+}
+
+.booking-form .btn-primary,
+.booking-section .btn-primary {
+  background-color: #ff5722 !important;
+  border-color: #ff5722 !important;
+  color: white !important;
+  background-image: none !important;
+}
+
+body.dark-mode .booking-form .btn-primary:hover,
+body.dark-mode .booking-section .btn-primary:hover {
+  background-color: #e64a19 !important;
+  border-color: #e64a19 !important;
+  color: white !important;
+  background-image: none !important;
+}
+
+body.dark-mode .booking-form .btn-primary,
+body.dark-mode .booking-section .btn-primary {
+  background-color: #ff5722 !important;
+  border-color: #ff5722 !important;
+  color: white !important;
+  background-image: none !important;
+}
+
+/* Override Bootstrap button hover completely */
+.btn-primary:hover:not(:disabled):not(.disabled) {
+  background-color: #e64a19 !important;
+  border-color: #e64a19 !important;
+  color: white !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Prevent button from changing when hovering over parent section */
+.booking-section:hover .btn-primary,
+.booking-section .btn-primary,
+.booking-section * .btn-primary {
+  background-color: #ff5722 !important;
+  border-color: #ff5722 !important;
+  color: white !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.booking-section:hover .btn-primary:hover,
+.booking-section .btn-primary:hover,
+.booking-section * .btn-primary:hover {
+  background-color: #e64a19 !important;
+  border-color: #e64a19 !important;
+  color: white !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .booking-section:hover .btn-primary,
+body.dark-mode .booking-section .btn-primary,
+body.dark-mode .booking-section * .btn-primary {
+  background-color: #ff5722 !important;
+  border-color: #ff5722 !important;
+  color: white !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+body.dark-mode .booking-section:hover .btn-primary:hover,
+body.dark-mode .booking-section .btn-primary:hover,
+body.dark-mode .booking-section * .btn-primary:hover {
+  background-color: #e64a19 !important;
+  border-color: #e64a19 !important;
+  color: white !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+/* Force button color at all times */
+.btn-primary {
+  background-color: #ff5722 !important;
+  border-color: #ff5722 !important;
+  color: white !important;
+  background-image: none !important;
+}
+
+.btn-primary:hover {
+  background-color: #e64a19 !important;
+  border-color: #e64a19 !important;
+  color: white !important;
+  background-image: none !important;
+}
+
 .card-img-top{
     border-radius: 1rem !important;
     width: 100% !important;

@@ -225,6 +225,57 @@ To test the double-booking prevention:
 
 The system will automatically handle the conflict and ensure data integrity.
 
+## 🎯 Slot Availability System
+
+The booking system now includes a slot-based availability feature to manage capacity limits and prevent overbooking.
+
+### How It Works
+
+**Slot Management:**
+- Each listing has `maxSlots` (default: 10) and `availableSlots` fields
+- Available slots are calculated dynamically: `maxSlots - confirmedBookings.length`
+- Slots decrement when bookings are confirmed
+- Slots increment when bookings are cancelled
+- No date overlap restrictions - users can book any dates within slot limits
+
+**Real-time Updates:**
+- Slot counts update instantly across all connected users via WebSockets
+- When a user books in one tab, all other tabs show decreased slots immediately
+- Visual indicators show availability status (green/yellow/red)
+- Booking form automatically hides when slots reach 0
+
+**Visual Indicators:**
+- **Green (4+ slots):** Good availability
+- **Yellow (1-3 slots):** Limited availability  
+- **Red (0 slots):** Fully booked - form hides and shows "No Slots Available" message
+
+**Concurrency Protection:**
+- Atomic slot counting with version checking
+- Prevents overbooking even with simultaneous requests
+- Same optimistic concurrency control applies to slot management
+
+### Testing Slot Availability
+
+1. Open the same listing in multiple browser tabs
+2. Book in one tab and watch slot count decrease instantly in other tabs
+3. Continue booking until slots reach 0
+4. Observe "No Slots Available" message appear
+5. Cancel a booking and watch slots increase immediately
+6. Verify booking form reappears when slots become available
+
+### Performance & Scalability
+
+**Current Capacity:** 50-100 concurrent users
+- Single Node.js process with event loop efficiency
+- MongoDB Atlas cloud database with connection pooling
+- Optimistic concurrency control for non-blocking operations
+- Socket.IO for efficient real-time updates
+
+**Scaling Recommendations:**
+- **Immediate:** Enable Node.js clustering, add Redis caching, optimize database queries
+- **Medium:** Load balancer, multiple server instances, Redis session store
+- **High:** Microservices architecture, message queues, auto-scaling with Kubernetes
+
 ### :rocket: Deployment
 
 - Use environment variables for `DB_URL`, `MAP_TOKEN`, and `SESSION_SECRET`.

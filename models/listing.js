@@ -77,6 +77,18 @@ const listingSchema = new Schema({
     },
   ],
 
+  // Slot availability fields
+  maxSlots: {
+    type: Number,
+    default: 10,
+    min: 1,
+  },
+  availableSlots: {
+    type: Number,
+    default: 10,
+    min: 0,
+  },
+
   // Version field for optimistic concurrency control
   __v: {
     type: Number,

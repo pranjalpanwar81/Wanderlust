@@ -38,21 +38,15 @@ router.post("/:id/book", isLoggedIn, wrapAsync(async (req, res) => {
         throw new ExpressError("Listing not found", 404);
       }
 
-      // Check for overlapping bookings
-      const hasOverlap = listing.bookings && listing.bookings.some(booking => {
-        if (booking.status === 'cancelled') return false;
-        
-        const bookingStart = new Date(booking.startDate);
-        const bookingEnd = new Date(booking.endDate);
-        
-        return (start < bookingEnd && end > bookingStart);
-      });
-
-      if (hasOverlap) {
-        throw new ExpressError("This listing is already booked for the selected dates", 409);
+      // Check if slots are available (count only confirmed bookings)
+      const confirmedBookings = listing.bookings ? listing.bookings.filter(b => b.status === 'confirmed') : [];
+      const actualAvailableSlots = (listing.maxSlots || 10) - confirmedBookings.length;
+      
+      if (actualAvailableSlots <= 0) {
+        throw new ExpressError("No slots available for this listing", 409);
       }
 
-      // Attempt to update with version check
+      // Attempt to update with version check (slot-based system, no date overlap check)
       const updatedListing = await Listing.findOneAndUpdate(
         { 
           _id: id, 
@@ -68,19 +62,23 @@ router.post("/:id/book", isLoggedIn, wrapAsync(async (req, res) => {
               bookedAt: new Date()
             }
           },
-          $inc: { __v: 1 } // Increment version
+          $inc: { __v: 1 } // Increment version only
         },
         { new: true }
       );
 
       if (!updatedListing) {
-        // Version mismatch - another user modified the listing
+        // Version mismatch - retry
         console.log(`Concurrency conflict on attempt ${attempt + 1}, retrying...`);
         await new Promise(resolve => setTimeout(resolve, 100 * (attempt + 1))); // Exponential backoff
         continue;
       }
 
       bookingSuccess = true;
+
+      // Calculate actual available slots
+      const newConfirmedBookings = updatedListing.bookings ? updatedListing.bookings.filter(b => b.status === 'confirmed') : [];
+      const newAvailableSlots = (updatedListing.maxSlots || 10) - newConfirmedBookings.length;
 
       // Emit real-time update to all connected clients
       const io = req.app.get('io');
@@ -93,6 +91,8 @@ router.post("/:id/book", isLoggedIn, wrapAsync(async (req, res) => {
             endDate: end,
             status: 'confirmed'
           },
+          availableSlots: newAvailableSlots,
+          maxSlots: updatedListing.maxSlots || 10,
           availableDates: getAvailableDates(updatedListing.bookings)
         });
       }
@@ -150,12 +150,18 @@ router.delete("/:id/booking/:bookingId", isLoggedIn, wrapAsync(async (req, res) 
   booking.status = 'cancelled';
   await listing.save();
 
+  // Calculate actual available slots after cancellation
+  const confirmedBookings = listing.bookings ? listing.bookings.filter(b => b.status === 'confirmed') : [];
+  const availableSlots = (listing.maxSlots || 10) - confirmedBookings.length;
+
   // Emit real-time update
   const io = req.app.get('io');
   if (io) {
     io.emit('bookingCancelled', {
       listingId: id,
       bookingId: bookingId,
+      availableSlots: availableSlots,
+      maxSlots: listing.maxSlots || 10,
       availableDates: getAvailableDates(listing.bookings)
     });
   }
