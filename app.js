@@ -116,7 +116,10 @@ async function main() {
 }
  
 app.set("view engine", "ejs");
-app.set("views", path.join(__dirname, "views"));
+// When bundled into a Netlify Function, __dirname points at netlify/functions,
+// so fall back to the project root (the function's working directory).
+const ROOT_DIR = require("fs").existsSync(path.join(__dirname, "views")) ? __dirname : process.cwd();
+app.set("views", path.join(ROOT_DIR, "views"));
 app.use(express.urlencoded({ extended: true }));  
 
 app.use(methodOverride(function (req, res) {
@@ -130,7 +133,7 @@ app.use(methodOverride(function (req, res) {
   }
 }));
 app.engine("ejs", ejsMate);
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(ROOT_DIR, "public")));
 
 const store = MongoStore.create({
   mongoUrl: dbUrl,
