@@ -2,23 +2,26 @@ if(process.env.NODE_ENV != "production") {
     require("dotenv").config();
 }
 
-process.on('uncaughtException', (err) => {
-  console.error('UNCAUGHT EXCEPTION - shutting down');
-  console.error(err && err.stack ? err.stack : err);
-  process.exit(1);
-});
+// Running as a long-lived server (Render/local) vs. a Netlify Function.
+const isServerless = !!(process.env.NETLIFY || process.env.AWS_LAMBDA_FUNCTION_NAME);
 
-process.on('unhandledRejection', (reason) => {
-  console.error('UNHANDLED REJECTION - shutting down');
-  console.error(reason && reason.stack ? reason.stack : reason);
-  process.exit(1);
-});
+if (!isServerless) {
+  process.on('uncaughtException', (err) => {
+    console.error('UNCAUGHT EXCEPTION - shutting down');
+    console.error(err && err.stack ? err.stack : err);
+    process.exit(1);
+  });
+
+  process.on('unhandledRejection', (reason) => {
+    console.error('UNHANDLED REJECTION - shutting down');
+    console.error(reason && reason.stack ? reason.stack : reason);
+    process.exit(1);
+  });
+}
 
 const express = require("express");
 const app = express();
 const http = require('http');
-const server = http.createServer(app);
-const io = require('socket.io')(server);
 const mongoose = require("mongoose");
 const Listing = require("./models/listing.js");
 const path = require("path");
@@ -213,30 +216,38 @@ app.use((err, req, res, next) => {
 });
 
 
-const PORT = process.env.PORT || 8080;
+module.exports = app;
 
-// Socket.IO setup for real-time inventory sync
-io.on('connection', (socket) => {
-  console.log('Client connected for real-time updates');
+// Only start the HTTP + Socket.IO server when run directly (`node app.js`).
+// On Netlify, netlify/functions/server.js imports `app` instead.
+if (require.main === module) {
+  const PORT = process.env.PORT || 8080;
+  const server = http.createServer(app);
+  const io = require('socket.io')(server);
 
-  socket.on('disconnect', () => {
-    console.log('Client disconnected');
+  // Socket.IO setup for real-time inventory sync
+  io.on('connection', (socket) => {
+    console.log('Client connected for real-time updates');
+
+    socket.on('disconnect', () => {
+      console.log('Client disconnected');
+    });
   });
-});
 
-// Make io accessible to routes
-app.set('io', io);
+  // Make io accessible to routes
+  app.set('io', io);
 
-server.listen(PORT, () => {
-  const dbUsed = (dbUrl && (dbUrl.includes('127.0.0.1') || dbUrl.includes('localhost'))) ? 'local MongoDB' : 'remote MongoDB (ATLAS or cloud)';
-  console.log(`main app is listening on port ${PORT} — using ${dbUsed}`);
-});
+  server.listen(PORT, () => {
+    const dbUsed = (dbUrl && (dbUrl.includes('127.0.0.1') || dbUrl.includes('localhost'))) ? 'local MongoDB' : 'remote MongoDB (ATLAS or cloud)';
+    console.log(`main app is listening on port ${PORT} — using ${dbUsed}`);
+  });
 
-server.on("error", (err) => {
-  if (err && err.code === "EADDRINUSE") {
-    console.error(`Port ${PORT} is already in use. Stop the other server and try again.`);
-    return;
-  }
+  server.on("error", (err) => {
+    if (err && err.code === "EADDRINUSE") {
+      console.error(`Port ${PORT} is already in use. Stop the other server and try again.`);
+      return;
+    }
 
-  console.error("main app encountered error:", err);
-});
+    console.error("main app encountered error:", err);
+  });
+}

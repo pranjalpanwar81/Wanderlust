@@ -211,8 +211,10 @@
 <script src="/js/map.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
-  // Socket.IO for real-time booking updates
-  const socket = io();
+  // Socket.IO for real-time booking updates (not available on serverless hosts like Netlify)
+  const socket = (typeof io === 'function')
+    ? io()
+    : { on: function () {} };
   const currentListingId = document.getElementById('currentListingId').value;
   
   // Listen for booking creation events
