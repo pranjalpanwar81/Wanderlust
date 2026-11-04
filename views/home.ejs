@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wanderlust | Find a place worth the journey</title>
+  <meta name="description" content="Browse and book stays from hosts around the world: beach houses, mountain cabins, farms and more.">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Unbounded:wght@500;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+  <link rel="stylesheet" href="/css/home.css">
+  <script>
+    // Decide before first paint whether the intro plays, so there's no flash.
+    (function () {
+      var seen = false;
+      try { seen = sessionStorage.getItem('wlIntroSeen') === '1'; } catch (e) {}
+      var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!seen && !reduce) document.documentElement.classList.add('intro-on');
+    })();
+  </script>
+</head>
+<body>
+
+  <!-- Startup animation: night departure, compass settles, page opens through it -->
+  <div class="intro" id="intro" aria-hidden="true">
+    <div class="intro-stars"></div>
+    <div class="intro-center">
+      <svg class="compass" viewBox="0 0 200 200" role="img" aria-label="">
+        <circle class="c-ring" cx="100" cy="100" r="86" />
+        <circle class="c-ring-inner" cx="100" cy="100" r="70" />
+        <g class="c-ticks">
+          <% for (let i = 0; i < 36; i++) { const a = i * 10; const long = a % 90 === 0; %>
+            <line x1="100" y1="<%= long ? 16 : 20 %>" x2="100" y2="28" transform="rotate(<%= a %> 100 100)" class="<%= long ? 'long' : '' %>" />
+          <% } %>
+        </g>
+        <g class="c-letters">
+          <text x="100" y="52">N</text>
+          <text x="152" y="105">E</text>
+          <text x="100" y="157">S</text>
+          <text x="48" y="105">W</text>
+        </g>
+        <g class="c-needle">
+          <polygon class="n-north" points="100,38 109,100 91,100" />
+          <polygon class="n-south" points="100,162 109,100 91,100" />
+          <circle cx="100" cy="100" r="6" class="n-pin" />
+        </g>
+      </svg>
+      <div class="intro-word" aria-hidden="true">
+        <% 'Wanderlust'.split('').forEach(function (ch, i) { %><span style="--i:<%= i %>"><%= ch %></span><% }); %>
+      </div>
+      <p class="intro-sub">Finding your bearing</p>
+    </div>
+    <button class="intro-skip" id="introSkip" type="button">Skip intro</button>
+  </div>
+
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Wanderlust home">
+      <i class="fa-regular fa-compass"></i><span>Wanderlust</span>
+    </a>
+    <nav class="topnav" aria-label="Main">
+      <a href="/listings">Explore stays</a>
+      <% if (currentUser) { %>
+        <a href="/listings/new">List your home</a>
+        <a href="/logout">Log out</a>
+      <% } else { %>
+        <a href="/login">Log in</a>
+        <a class="pill" href="/signup">Sign up</a>
+      <% } %>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-copy">
+        <h1>Find a place worth the&nbsp;journey.</h1>
+        <p class="lede">Beach houses, mountain cabins, farm stays and city rooms from hosts who know their corner of the world.</p>
+
+        <form class="search" action="/listings/search" method="GET" role="search">
+          <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+          <label class="sr-only" for="q">Where do you want to go?</label>
+          <input id="q" name="q" type="text" placeholder="Where do you want to go?" autocomplete="off">
+          <button type="submit">Search</button>
+        </form>
+
+        <div class="hero-actions">
+          <a class="btn primary" href="/listings">Explore all stays</a>
+          <a class="btn ghost" href="<%= currentUser ? '/listings/new' : '/signup' %>">List your home</a>
+        </div>
+
+        <% if (stats.listings > 0) { %>
+          <p class="count"><%= stats.listings %> stays in <%= stats.countries %> <%= stats.countries === 1 ? 'country' : 'countries' %>, and counting.</p>
+        <% } %>
+      </div>
+
+      <div class="collage" aria-hidden="true">
+        <% const pics = featured.slice(0, 5); %>
+        <% pics.forEach(function (l, i) { %>
+          <figure class="tile t<%= i + 1 %>">
+            <img src="<%= (l.image && l.image.url) || fallbackImage %>" alt="" loading="<%= i < 3 ? 'eager' : 'lazy' %>">
+            <figcaption><%= l.location || l.title %><% if (l.country) { %>, <%= l.country %><% } %></figcaption>
+          </figure>
+        <% }); %>
+      </div>
+    </section>
+
+    <section class="kinds" aria-labelledby="kinds-h">
+      <h2 id="kinds-h">What kind of trip?</h2>
+      <ul class="kind-list">
+        <li><a href="/listings?filter=beach"><i class="fa-solid fa-umbrella-beach"></i>Beach</a></li>
+        <li><a href="/listings?filter=mountains"><i class="fa-solid fa-mountain"></i>Mountains</a></li>
+        <li><a href="/listings?filter=cabin"><i class="fa-solid fa-house-chimney"></i>Cabins</a></li>
+        <li><a href="/listings?filter=pool"><i class="fa-solid fa-person-swimming"></i>Pools</a></li>
+        <li><a href="/listings?filter=camping"><i class="fa-solid fa-campground"></i>Camping</a></li>
+        <li><a href="/listings?filter=farm"><i class="fa-solid fa-tractor"></i>Farms</a></li>
+        <li><a href="/listings?filter=arctic"><i class="fa-regular fa-snowflake"></i>Arctic</a></li>
+        <li><a href="/listings?filter=luxury"><i class="fa-solid fa-gem"></i>Luxury</a></li>
+      </ul>
+    </section>
+
+    <% if (featured.length) { %>
+    <section class="recent" aria-labelledby="recent-h">
+      <div class="section-head">
+        <h2 id="recent-h">Recently added</h2>
+        <a href="/listings?sortBy=newest">See all stays</a>
+      </div>
+      <div class="recent-grid">
+        <% featured.slice(0, 4).forEach(function (l) { %>
+          <a class="stay" href="/listings/<%= l._id %>">
+            <div class="stay-img"><img src="<%= (l.image && l.image.url) || fallbackImage %>" alt="<%= l.title %>" loading="lazy"></div>
+            <h3><%= l.title %></h3>
+            <p class="where"><%= [l.location, l.country].filter(Boolean).join(', ') %></p>
+            <p class="price"><% if (l.price) { %><strong>&#8377;<%= l.price.toLocaleString('en-IN') %></strong> a night<% } else { %>Price on request<% } %></p>
+          </a>
+        <% }); %>
+      </div>
+    </section>
+    <% } %>
+
+    <section class="host">
+      <div class="host-inner">
+        <h2>Have a spare room or a cabin by the lake?</h2>
+        <p>Put it on Wanderlust in a few minutes. Add photos, set a nightly price, and travellers can start booking.</p>
+        <a class="btn primary" href="<%= currentUser ? '/listings/new' : '/signup' %>">List your home</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="foot">
+    <span>&copy; Wanderlust</span>
+    <span>Made by Pranjal Panwar</span>
+    <span class="foot-links"><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  </footer>
+
+  <script>
+    (function () {
+      var root = document.documentElement;
+      var intro = document.getElementById('intro');
+      if (!root.classList.contains('intro-on')) { intro.remove(); return; }
+
+      var done = false;
+      function finish() {
+        if (done) return; done = true;
+        try {
+          sessionStorage.setItem('wlIntroSeen', '1');
+          sessionStorage.setItem('hasSeenSplash', 'true'); // don't replay the listings splash
+        } catch (e) {}
+        root.classList.add('intro-open');
+        setTimeout(function () { root.classList.remove('intro-on', 'intro-open'); intro.remove(); }, 900);
+      }
+      document.getElementById('introSkip').addEventListener('click', finish);
+      document.addEventListener('keydown', function (e) { if (e.key === 'Escape') finish(); });
+      setTimeout(finish, 2900);
+    })();
+  </script>
+</body>
+</html>

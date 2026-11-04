@@ -195,10 +195,19 @@ app.get("/demouser", async (req, res, next) => {
   }
 });
 
-// Redirect root to listings for a proper homepage
-app.get('/', (req, res) => {
-  return res.redirect('/listings');
-});
+// Landing page
+app.get('/', wrapAsync(async (req, res) => {
+  const [featured, total, countries] = await Promise.all([
+    Listing.find({}).sort({ _id: -1 }).limit(8).lean(),
+    Listing.countDocuments({}),
+    Listing.distinct('country'),
+  ]);
+  res.render('home.ejs', {
+    featured,
+    stats: { listings: total, countries: countries.filter(Boolean).length },
+    fallbackImage: 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1200&q=70',
+  });
+}));
 
 
 app.use("/listings/:id/reviews", reviewrouter);
