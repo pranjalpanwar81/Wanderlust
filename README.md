@@ -283,22 +283,22 @@ The booking system now includes a slot-based availability feature to manage capa
  - Use environment variables for `ATLASDB_URL`, `MAP_TOKEN`, and `SECRET`.
  - For production, host behind a process manager (PM2) or a container runtime; use managed MongoDB for reliability.
 
-### Deploying to Render (example)
+### Deploying to Netlify
 
-1. Push your code to GitHub (this repo).
-2. In Render, create a new **Web Service** and connect your GitHub repo/`main` branch.
-  - Render should detect the included `render.yaml` and use `npm install` and `node app.js` by default.
-3. Add the required Environment Variables in Render (Service → Environment → Environment Variables):
-  - `ATLASDB_URL` — MongoDB Atlas connection string (example: `mongodb+srv://USER:PASSWORD@cluster0.xyz.mongodb.net/wanderlust?retryWrites=true&w=majority`).
+The app runs on Netlify as a single serverless function (`netlify/functions/server.js` wraps the Express app with `serverless-http`). Static files in `public/` are served from Netlify's CDN; every other route goes to the function (see `netlify.toml`).
+
+1. In Netlify, **Add new project → Import from Git → GitHub** and pick this repo, branch `main`. Build settings are read from `netlify.toml`.
+2. Add environment variables (Project configuration → Environment variables):
+  - `ATLASDB_URL` — MongoDB Atlas connection string.
   - `SECRET` — session cookie secret (long random string).
-  - Optional: `MAP_TOKEN`, `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_KEY`, `CLOUDINARY_SECRET`.
-4. Ensure your MongoDB Atlas Network Access allows connections from Render (for testing you can add `0.0.0.0/0`, then restrict later).
-5. Trigger a Manual Deploy (or push a new commit) and watch the Render Logs → Live tail for startup messages.
+  - `MAP_TOKEN` — Mapbox token.
+  - `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, `CLOUDINARY_API_SECRET` — required for image uploads (the function filesystem is read-only).
+3. In MongoDB Atlas → Network Access, allow `0.0.0.0/0` (Netlify Functions have no fixed IPs).
+4. Deploy. Every push to `main` redeploys.
 
-Live site
-- The project is deployed at: https://wanderlustt-o0y5.onrender.com
-
-Note: Do not commit secrets or full connection strings to the repository. Store them securely in the Render environment settings.
+Notes:
+- Real-time booking updates over Socket.IO only work when running the long-lived server (`npm start` locally); on Netlify the page still works but doesn't push live updates.
+- Do not commit secrets. Store them in Netlify's environment settings.
 
 ## :cherry_blossom: Community
 
