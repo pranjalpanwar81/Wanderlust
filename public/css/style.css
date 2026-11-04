@@ -295,7 +295,7 @@ body.wl fieldset legend { font-size: .92rem; font-weight: 600; color: var(--ink)
 }
 .wl-auth-art {
   border-radius: 26px; background: radial-gradient(120% 90% at 50% 30%, #1b2b4d 0%, var(--night) 70%);
-  color: #fff; display: grid; place-content: center; text-align: center; padding: 40px; gap: 18px; min-height: 360px;
+  color: #fff; display: grid; place-content: center; justify-items: center; text-align: center; padding: 40px; gap: 18px; min-height: 360px;
 }
 .wl-auth-art i { font-size: 5rem; color: var(--brand); }
 .wl-auth-art p { margin: 0; max-width: 24ch; font: 600 1.15rem/1.45 var(--display); color: rgba(255,255,255,.9); }
