@@ -1,39 +1,29 @@
-<nav class="navbar navbar-expand-lg bg-body-light border-bottom" style="position: fixed; top: 0; left: 0; right: 0; z-index: 1030;">
-  <div class="container-fluid">
-    <a class="navbar-brand" href="/"><i class="fa-regular fa-compass"></i></a>
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavAltMarkup">
-      <span class="navbar-toggler-icon"></span>
+<nav class="navbar navbar-expand-lg wl-nav">
+  <div class="wl-nav-inner">
+    <a class="wl-brand" href="/" aria-label="Wanderlust home"><i class="fa-regular fa-compass"></i><span>Wanderlust</span></a>
+    <button class="navbar-toggler wl-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#wlNav" aria-controls="wlNav" aria-expanded="false" aria-label="Open menu">
+      <i class="fa-solid fa-bars"></i>
     </button>
-    <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-      <div class="navbar-nav">
-        <a class="nav-link" href="/listings">Explore</a>
-      </div>
-      <div class="navbar-nav mx-auto">
-        <form class="search-form" action="/listings/search" method="GET">
-          <div class="search-input-wrapper">
-            <input type="text" class="search-input" name="q" placeholder="Search by country, location, or title...">
-            <button type="submit" class="search-button">
-              <i class="fa-solid fa-search"></i>
-            </button>
-          </div>
-        </form>
-      </div>
-      <div class="navbar-nav ms-auto">
-        <div class="dark-mode-toggle">
-          <i class="fa-solid fa-sun dark-mode-icon light-icon"></i>
-          <label class="dark-mode-switch">
-            <input type="checkbox" id="darkModeToggle">
-            <span class="dark-mode-slider"></span>
-          </label>
-          <i class="fa-solid fa-moon dark-mode-icon dark-icon"></i>
-        </div>
-        <a class="nav-link add-home-btn" id="addHomeBtn" href="/listings/new">Add Your New Home</a>
+    <div class="collapse navbar-collapse" id="wlNav">
+      <form class="wl-search" action="/listings/search" method="GET" role="search">
+        <i class="fa-solid fa-location-dot" aria-hidden="true"></i>
+        <label class="visually-hidden" for="navSearch">Search stays</label>
+        <input id="navSearch" type="text" name="q" placeholder="Search by place or title" value="<%= typeof searchQuery !== 'undefined' && searchQuery ? searchQuery : '' %>">
+        <button type="submit" aria-label="Search"><i class="fa-solid fa-magnifying-glass"></i></button>
+      </form>
+      <div class="wl-links">
+        <a class="wl-link" href="/listings">Explore stays</a>
+        <a class="wl-link" id="addHomeBtn" href="/listings/new">List your home</a>
+        <label class="wl-theme" title="Dark mode">
+          <input type="checkbox" id="darkModeToggle" aria-label="Dark mode">
+          <span class="wl-theme-track"><i class="fa-solid fa-sun"></i><i class="fa-solid fa-moon"></i></span>
+        </label>
         <% if (typeof currentUser !== 'undefined' && currentUser) { %>
-        <a class="nav-link active" href="#">Welcome, <%= currentUser.username %></a>
-        <a class="nav-link" href="/logout"><b>Logout</b></a>
+          <span class="wl-user"><i class="fa-regular fa-circle-user"></i><%= currentUser.username %></span>
+          <a class="wl-link" href="/logout">Log out</a>
         <% } else { %>
-        <a class="nav-link active" href="/signup"><b>Signup</b></a>
-        <a class="nav-link" href="/login"><b>Login</b></a>
+          <a class="wl-link" href="/login">Log in</a>
+          <a class="wl-pill" href="/signup">Sign up</a>
         <% } %>
       </div>
     </div>
@@ -41,34 +31,15 @@
 </nav>
 
 <script>
-  // Add active class to Add Your New Home button when on that page
-  document.addEventListener('DOMContentLoaded', function() {
-    const addHomeBtn = document.getElementById('addHomeBtn');
-    if (addHomeBtn && window.location.pathname === '/listings/new') {
-      addHomeBtn.classList.add('active');
-    }
-    
-    // Dark mode toggle functionality
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    
-    // Check for saved dark mode preference
-    const darkModeEnabled = localStorage.getItem('darkModeEnabled') === 'true';
-    
-    // Apply dark mode if preference is true
-    if (darkModeEnabled) {
-      document.body.classList.add('dark-mode');
-      darkModeToggle.checked = true;
-    }
-    
-    // Toggle dark mode on switch change
-    darkModeToggle.addEventListener('change', function() {
-      if (this.checked) {
-        document.body.classList.add('dark-mode');
-        localStorage.setItem('darkModeEnabled', 'true');
-      } else {
-        document.body.classList.remove('dark-mode');
-        localStorage.setItem('darkModeEnabled', 'false');
-      }
+  document.addEventListener('DOMContentLoaded', function () {
+    var addHomeBtn = document.getElementById('addHomeBtn');
+    if (addHomeBtn && window.location.pathname === '/listings/new') addHomeBtn.classList.add('active');
+
+    var toggle = document.getElementById('darkModeToggle');
+    toggle.checked = document.body.classList.contains('dark-mode');
+    toggle.addEventListener('change', function () {
+      document.body.classList.toggle('dark-mode', this.checked);
+      try { localStorage.setItem('darkModeEnabled', this.checked ? 'true' : 'false'); } catch (e) {}
     });
   });
 </script>

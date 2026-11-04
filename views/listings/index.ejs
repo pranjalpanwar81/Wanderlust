@@ -1,30 +1,33 @@
 <% layout("layouts/boilerplate") %>
-<body>
+<%- include("../includes/filters.ejs") %>
+
+<section class="wl-page">
   <% if (searchQuery) { %>
-    <div class="search-results-header mb-4">
-      <h4>Search results for "<%= searchQuery %>"</h4>
-      <p class="text-muted">Found <%= allListings.length %> listing(s)</p>
-    </div>
+    <header class="wl-page-head">
+      <h1>Stays matching "<%= searchQuery %>"</h1>
+      <p><%= allListings.length %> <%= allListings.length === 1 ? 'stay' : 'stays' %> found. <a href="/listings">Clear search</a></p>
+    </header>
   <% } %>
 
-  <!-- <form method="GET" action="/listings/new">
-    <button>Create New Listing</button>
-  </form> -->
-
-  <div class="row row-cols-lg-3 row-cols-md-3 row-cols-sm-1">
-   <% for(let listing of allListings) { %>
-    <a href="/listings/<%=listing._id %>" class="listing-link">
-      <div class="card col listing-card">
-        <img src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60' %>" class="card-img-top" alt="listing_image" style="height: 20rem;">
-        <div class="card-img-overlay"></div>
-        <div class="card-body">
-          <p class="card-text">
-            <b><%= listing.title %> <br></b>
-            <span class="listing-price" data-base-price="<%= listing.price || 0 %>">&#8377; <%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %> /night</span>
-          </p>
-        </div>
-      </div>
-    </a>
-   <% } %>
-  </div>
-
+  <% if (allListings.length) { %>
+    <div class="wl-grid">
+      <% for (let listing of allListings) { %>
+        <a href="/listings/<%= listing._id %>" class="wl-stay">
+          <div class="wl-stay-img">
+            <img src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=900&q=70' %>" alt="<%= listing.title %>" loading="lazy">
+          </div>
+          <h2 class="wl-stay-title"><%= listing.title %></h2>
+          <p class="wl-stay-where"><%= [listing.location, listing.country].filter(Boolean).join(', ') %></p>
+          <p class="wl-stay-price"><span class="listing-price" data-base-price="<%= listing.price || 0 %>">&#8377;<%= listing.price ? listing.price.toLocaleString("en-IN") : "N/A" %></span> a night</p>
+        </a>
+      <% } %>
+    </div>
+  <% } else { %>
+    <div class="wl-empty">
+      <i class="fa-solid fa-map-location-dot wl-empty-icon"></i>
+      <h1>No stays match yet</h1>
+      <p>Try another place or clear the filters to see every stay.</p>
+      <div class="wl-actions"><a class="wl-btn primary" href="/listings">Show all stays</a></div>
+    </div>
+  <% } %>
+</section>

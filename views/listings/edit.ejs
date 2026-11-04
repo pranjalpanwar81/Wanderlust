@@ -1,90 +1,74 @@
-<%layout("/layouts/boilerplate")%>
+<% layout("/layouts/boilerplate") %>
 
-<div class="row mt-2">
-  <div class="col-8 offset-2">
-    <br /><br />
+<section class="wl-page wl-narrow">
+  <header class="wl-page-head">
+    <h1>Edit your listing</h1>
+    <p>Changes show up for guests as soon as you save.</p>
+  </header>
 
-    <h3>Edit your Listing</h3>
-    <form method="POST" action="/listings/<%= listing._id %>?_method=PUT" novalidate class="needs-validation" enctype="multipart/form-data">
-
-      <br />
-
-      <div class="mb-3">
-          <lable for="title" class="form-label">Title</lable>
-        <input name="listing[title]" value="<%= listing.title %>" type="text" class="form-control" required/>
-      </div>
-
-      <div class="mb-3">
-        <lable for="description" class="form-label">Description</lable>
-        <textarea name="listing[description]" class="form-control" required><%= listing.description %></textarea>
-        <div class="invalid-feedback">Please enter a short description</div>
-      </div>
-
-      <div class="mb-3">
-        <lable class="form-label">Current Image</lable>
-        <br>
-        <% if (listing.image && listing.image.url) { %>
-          <% 
-            let previewUrl = listing.image.url;
-            // Add Cloudinary transformation for basic preview (width 300, quality 60)
-            if (previewUrl.includes('cloudinary.com')) {
-              previewUrl = previewUrl.replace('/image/upload/', '/image/upload/w_300,q_60/');
-            }
-          %>
-          <img src="<%= previewUrl %>" alt="Current listing image" class="img-fluid" style="max-height: 150px; max-width: 100%; object-fit: cover; border-radius: 8px; margin-bottom: 10px;">
-        <% } else { %>
-          <p class="text-muted">No image currently set</p>
-        <% } %>
-      </div>
-
-      <div class="mb-3">
-        <lable for="image" class="form-label">Upload New Image</lable>
-        <input name="listing[image]" type="file" class="form-control" accept="image/*"/>
-      </div>
-
-
-      <div class="row">
-        <div class="mb-3 col-md-4">
-        <lable for="price" class="form-label">Price</lable>
-        <input name="listing[price]" value="<%= listing.price %>" type="number" class="form-control" required/>
-        <div class="invalid-feedback">Price should be valid</div>
-      </div>
-
-      <div class="mb-3 col-md-8">
-        <lable for="country" class="form-label">Country</lable>
-      <input name="listing[country]" value="<%= listing.country %>" type="text" class="form-control" required/>
-      <div class="invalid-feedback">Country name should be valid</div>
-      </div>
-      </div>
-
-
-      <div class="mb-3">
-        <lable for="location" class="form-label">Location</lable>
-        <input name="listing[location]" value="<%= listing.location %>" type="text" class="form-control" required/>
-        <div class="invalid-feedback">Location should be valid</div>
-      </div>
-
-      <div class="mb-3"> 
-        <lable for="category" class="form-label">Category</lable>
-        <select name="listing[category]" class="form-control" required>
-          <option value="">Select a category</option>
-          <option value="beach" <%= listing.category === 'beach' ? 'selected' : '' %>>Beach</option>
-          <option value="mountains" <%= listing.category === 'mountains' ? 'selected' : '' %>>Mountains</option>
-          <option value="cabin" <%= listing.category === 'cabin' ? 'selected' : '' %>>Cabins</option>
-          <option value="pool" <%= listing.category === 'pool' ? 'selected' : '' %>>Amazing pools</option>
-          <option value="camping" <%= listing.category === 'camping' ? 'selected' : '' %>>Camping</option>
-          <option value="farm" <%= listing.category === 'farm' ? 'selected' : '' %>>Farms</option>
-          <option value="arctic" <%= listing.category === 'arctic' ? 'selected' : '' %>>Arctic</option>
-          <option value="trending" <%= listing.category === 'trending' ? 'selected' : '' %>>Trending</option>
-          <option value="luxury" <%= listing.category === 'luxury' ? 'selected' : '' %>>Luxury</option>
-        </select>
-        <div class="invalid-feedback">Please select a category</div>
-      </div>
-
-      <br /><br />
-      <button class="btn btn-dark edit-tbn">Edit</button>
-    </form>
+  <form method="POST" action="/listings/<%= listing._id %>?_method=PUT" novalidate class="needs-validation wl-card wl-form" enctype="multipart/form-data">
+    <div class="wl-field">
+      <label for="title" class="form-label">Title</label>
+      <input id="title" name="listing[title]" value="<%= listing.title %>" placeholder="Sunny cottage by the sea" type="text" class="form-control" required>
+      <div class="invalid-feedback">Give your place a title.</div>
     </div>
-</div>
-  </body>
-</html>
+
+    <div class="wl-field">
+      <label for="description" class="form-label">Description</label>
+      <textarea id="description" name="listing[description]" rows="5" placeholder="What's the space like? What's nearby?" class="form-control" required><%= listing.description %></textarea>
+      <div class="invalid-feedback">Add a short description.</div>
+    </div>
+
+        <div class="wl-field">
+          <span class="form-label">Photo</span>
+          <% if (listing.image && listing.image.url) { %>
+            <% let previewUrl = listing.image.url; if (previewUrl.includes('cloudinary.com')) { previewUrl = previewUrl.replace('/image/upload/', '/image/upload/w_600,q_70/'); } %>
+            <img class="wl-preview" src="<%= previewUrl %>" alt="Current photo">
+          <% } %>
+          <label for="image" class="wl-hint">Upload a new photo to replace it (optional)</label>
+          <input id="image" name="listing[image]" type="file" class="form-control" accept="image/*">
+        </div>
+
+    <div class="wl-field-row">
+      <div class="wl-field">
+        <label for="price" class="form-label">Price per night (&#8377;)</label>
+        <input id="price" name="listing[price]" value="<%= listing.price %>" placeholder="2500" type="number" min="0" class="form-control" required>
+        <div class="invalid-feedback">Enter a nightly price.</div>
+      </div>
+      <div class="wl-field">
+        <label for="category" class="form-label">Kind of stay</label>
+        <select id="category" name="listing[category]" class="form-select" required>
+          <option value="">Choose one</option>
+            <option value="beach" <%= listing.category === 'beach' ? 'selected' : '' %>>Beach</option>
+            <option value="mountains" <%= listing.category === 'mountains' ? 'selected' : '' %>>Mountains</option>
+            <option value="cabin" <%= listing.category === 'cabin' ? 'selected' : '' %>>Cabins</option>
+            <option value="pool" <%= listing.category === 'pool' ? 'selected' : '' %>>Amazing pools</option>
+            <option value="camping" <%= listing.category === 'camping' ? 'selected' : '' %>>Camping</option>
+            <option value="farm" <%= listing.category === 'farm' ? 'selected' : '' %>>Farms</option>
+            <option value="arctic" <%= listing.category === 'arctic' ? 'selected' : '' %>>Arctic</option>
+            <option value="trending" <%= listing.category === 'trending' ? 'selected' : '' %>>Trending</option>
+            <option value="luxury" <%= listing.category === 'luxury' ? 'selected' : '' %>>Luxury</option>
+        </select>
+        <div class="invalid-feedback">Pick the kind of stay.</div>
+      </div>
+    </div>
+
+    <div class="wl-field-row">
+      <div class="wl-field">
+        <label for="location" class="form-label">Town or city</label>
+        <input id="location" name="listing[location]" value="<%= listing.location %>" placeholder="Manali" type="text" class="form-control" required>
+        <div class="invalid-feedback">Enter where the place is.</div>
+      </div>
+      <div class="wl-field">
+        <label for="country" class="form-label">Country</label>
+        <input id="country" name="listing[country]" value="<%= listing.country %>" placeholder="India" type="text" class="form-control" required>
+        <div class="invalid-feedback">Enter the country.</div>
+      </div>
+    </div>
+
+    <div class="wl-actions">
+      <button class="wl-btn primary">Save changes</button>
+      <a class="wl-btn ghost" href="/listings/<%= listing._id %>">Cancel</a>
+    </div>
+  </form>
+</section>

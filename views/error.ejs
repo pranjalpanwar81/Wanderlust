@@ -1,7 +1,10 @@
 <% layout("/layouts/boilerplate") %>
-
-<div class="row mt-3">
-    <div class="alert alert-danger col-6 offset-3" role="alert">
-        <p class="alert-heading"><%= message %></p>
+<section class="wl-empty">
+    <i class="fa-regular fa-compass wl-empty-icon"></i>
+    <h1>We lost our bearing</h1>
+    <p><%= message %></p>
+    <div class="wl-actions">
+        <a class="wl-btn primary" href="/listings">Back to all stays</a>
+        <a class="wl-btn ghost" href="/">Go to the home page</a>
     </div>
-</div>
+</section>

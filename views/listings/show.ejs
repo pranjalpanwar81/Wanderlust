@@ -6,208 +6,162 @@
 <% if (listing.geometry && listing.geometry.coordinates) { %>
 <input type="hidden" id="debugCoords" value="<%= listing.geometry.coordinates %>">
 <% } %> 
-<div class="row">
-  <div class="col-8 offset-3">
-    <br><br>
-    <div class="show-hero">
-      <span class="show-kicker">Listing details</span>
-      <h3><%= listing.title %></h3>
-      <p class="text-muted mb-0">Explore the details, read the reviews, and decide if this stay is the right fit.</p>
-    </div>
-    <br>
-  </div>
+<% const img = listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1501785888041-af3ef285b470?auto=format&fit=crop&w=1400&q=70'; %>
+<% const isOwner = currentUser && listing.owner && listing.owner._id && currentUser._id.toString() === listing.owner._id.toString(); %>
+<% const maxSlots = listing.maxSlots || 10; const taken = listing.bookings ? listing.bookings.filter(b => b.status === 'confirmed').length : 0; %>
+<% const avg = listing.reviews.length ? (listing.reviews.reduce((t, r) => t + (r.rating || 0), 0) / listing.reviews.length) : 0; %>
 
-    <div class="card col-6 offset-3 show-card listing-card show-listing-panel">
-      <img src="<%= listing.image && listing.image.url ? listing.image.url : 'https://images.unsplash.com/photo-1625505826533-5c80aca7d157?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MTJ8fGdvYXxlbnwwfHwwfHx8MA%3D%3D&auto=format&fit=crop&w=800&q=60' %>" class="card-img-top show-img" alt="listing_image"/> <br>
-  <div class="card-body show-listing-body">
-    <div class="show-detail-row">
-      <span class="show-detail-label">Owned by</span>
-      <span class="show-detail-value"><%= listing.owner && listing.owner.username ? listing.owner.username : "Unknown" %></span>
-    </div>
-    <p class="card-text show-description"><%= listing.description %></p>
-    <div class="show-chip-row">
-      <span class="show-chip listing-price" data-base-price="<%= listing.price || 0 %>">&#8377; <%= listing.price.toLocaleString("en-IN") %></span>
-      <span class="show-chip"><%= listing.location %></span>
-      <span class="show-chip"><%= listing.country %></span>
-    </div>
-    
-    <!-- Booking Section -->
-    <% if (currentUser) { %>
-    <div class="booking-section mt-4 p-4 border rounded" style="background-color: #f8f9fa; border-left: 4px solid #ff5722;">
-      <h5 class="mb-3" style="color: #333; font-weight: 600;">📅 Book This Listing</h5>
-      
-      <!-- Slot Availability Display -->
-      <div class="slot-availability mb-3 p-2 rounded" style="background-color: #e9ecef; border-left: 3px solid #28a745;">
-        <span style="font-weight: 600; color: #333;">Available Slots:</span>
-        <span id="availableSlots" style="font-weight: 700; color: #28a745; font-size: 18px;"><%= (listing.maxSlots || 10) - (listing.bookings ? listing.bookings.filter(b => b.status === 'confirmed').length : 0) %></span>
-        <span style="color: #666;">/ <%= listing.maxSlots || 10 %></span>
-        <span id="slotStatus" class="ml-2" style="font-size: 14px;"></span>
-      </div>
-      
-      <div id="bookingFormContainer">
-        <form action="/listings/<%= listing._id %>/book" method="POST" class="booking-form">
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="startDate" class="form-label" style="font-weight: 500;">Check-in Date</label>
-              <input type="date" class="form-control" id="startDate" name="startDate" required style="padding: 10px;">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="startTime" class="form-label" style="font-weight: 500;">Check-in Time</label>
-              <input type="time" class="form-control" id="startTime" name="startTime" required style="padding: 10px;">
-            </div>
-          </div>
-          <div class="row">
-            <div class="col-md-6 mb-3">
-              <label for="endDate" class="form-label" style="font-weight: 500;">Check-out Date</label>
-              <input type="date" class="form-control" id="endDate" name="endDate" required style="padding: 10px;">
-            </div>
-            <div class="col-md-6 mb-3">
-              <label for="endTime" class="form-label" style="font-weight: 500;">Check-out Time</label>
-              <input type="time" class="form-control" id="endTime" name="endTime" required style="padding: 10px;">
-            </div>
-          </div>
-          <button type="submit" class="btn btn-primary mt-2" style="background-color: #ff5722; border-color: #ff5722; padding: 10px 30px; font-weight: 600;">Book Now</button>
-        </form>
-      </div>
-      
-      <div id="noSlotsMessage" class="mt-3 p-3 rounded" style="background-color: #f8d7da; border: 1px solid #f5c6cb; display: none;">
-        <h6 style="color: #721c24; font-weight: 600;">🚫 No Slots Available</h6>
-        <p style="color: #721c24; margin: 0;">This destination is currently fully booked. Please check back later.</p>
-      </div>
-      
-      <div id="bookingStatus" class="mt-2"></div>
-    </div>
-    <% } else { %>
-    <div class="booking-section mt-4 p-4 border rounded" style="background-color: #f8f9fa; border-left: 4px solid #ff5722;">
-      <h5 class="mb-2" style="color: #333; font-weight: 600;">📅 Book This Listing</h5>
-      <p class="text-muted mb-0">Please <a href="/login" style="color: #ff5722; font-weight: 600;">log in</a> to book this listing.</p>
-    </div>
-    <% } %>
-    
-    <!-- Current Bookings Display -->
-    <% if (listing.bookings && listing.bookings.length > 0) { %>
-    <div class="current-bookings mt-4 p-4 border rounded" style="background-color: #f8f9fa; border-left: 4px solid #28a745;">
-      <h5 class="mb-3" style="color: #333; font-weight: 600;">📋 Current Bookings</h5>
-      <div id="bookingsList">
-        <% listing.bookings.forEach(function(booking) { %>
-          <% if (booking.status !== 'cancelled') { %>
-            <div class="booking-item p-3 mb-2 border rounded" style="background-color: white; border-left: 3px solid #28a745;">
-              <div style="font-size: 14px;">
-                <div style="margin-bottom: 5px;">
-                  <strong style="color: #333;">👤 User:</strong> 
-                  <span style="color: #666;"><%= booking.user && booking.user.username ? booking.user.username : 'Unknown' %></span>
-                </div>
-                <div style="margin-bottom: 5px;">
-                  <strong style="color: #333;">📅 Dates:</strong> 
-                  <span style="color: #666;"><%= new Date(booking.startDate).toLocaleDateString('en-GB') %> <%= new Date(booking.startDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) %> - <%= new Date(booking.endDate).toLocaleDateString('en-GB') %> <%= new Date(booking.endDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) %></span>
-                </div>
-                <div>
-                  <strong style="color: #333;">✅ Status:</strong> 
-                  <span style="color: #28a745; font-weight: 600;"><%= booking.status %></span>
-                </div>
-              </div>
-            </div>
-          <% } %>
-        <% }); %>
-      </div>
-    </div>
-    <% } %>
-  </div>
-  </div>
+<article class="wl-page wl-show">
+  <a class="wl-back" href="/listings"><i class="fa-solid fa-arrow-left"></i>All stays</a>
 
-    <br />
+  <header class="wl-show-head">
+    <h1><%= listing.title %></h1>
+    <p class="wl-show-meta">
+      <span><i class="fa-solid fa-location-dot"></i><%= [listing.location, listing.country].filter(Boolean).join(', ') %></span>
+      <% if (listing.reviews.length) { %><span><i class="fa-solid fa-star"></i><%= avg.toFixed(1) %> from <%= listing.reviews.length %> <%= listing.reviews.length === 1 ? 'review' : 'reviews' %></span><% } %>
+      <% if (listing.category) { %><span class="wl-tag"><%= listing.category %></span><% } %>
+    </p>
+  </header>
 
-  <% if (currentUser && listing.owner && listing.owner._id && currentUser._id.toString() === listing.owner._id.toString()) { %>
-    <div class="btns mb-5">
-        <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
-      
-        <form method="POST" action="/listings/<%=listing._id%>?_method=DELETE">
-        <button class="btn btn-dark offset-5 ">Delete</button>
-      </form>
-    </div>
-  <% } %>
-  <div class="col-8 offset-3 mb-5 review-section-shell">
-    <hr> 
-    <div class="review-section-head">
-      <h4>Leave a Review</h4>
-      <p class="text-muted mb-0">Share your experience so other travelers can decide faster.</p>
-    </div>
-    <% if (currentUser) { %>
-      <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation review-form-card" >
-<fieldset class="starability-growRotate">
-<legend>Rating:</legend>
-  <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked aria-label="No rating." />
-  <input type="radio" id="first-rate1" name="review[rating]" value="1" />
-  <label for="first-rate1" title="Terrible">1 star</label>
-  <input type="radio" id="first-rate2" name="review[rating]" value="2" />
-  <label for="first-rate2" title="Not good">2 stars</label>
-  <input type="radio" id="first-rate3" name="review[rating]" value="3" />
-  <label for="first-rate3" title="Average">3 stars</label>
-  <input type="radio" id="first-rate4" name="review[rating]" value="4" />
-  <label for="first-rate4" title="Very good">4 stars</label>
-  <input type="radio" id="first-rate5" name="review[rating]" value="5" />
-  <label for="first-rate5" title="Amazing">5 stars</label>
-</fieldset>
+  <div class="wl-show-photo"><img src="<%= img %>" alt="<%= listing.title %>"></div>
 
-        <div class="mb-3 mt-3">
-          <label for="comment" class="form-label">Comment</label>
-          <textarea id="comment" name="review[comment]" rows="5"  cols="30" class = "form-control"  required></textarea>
-          <div class="invalid-feedback">Please add some comments for review</div>
+  <div class="wl-show-grid">
+    <div class="wl-show-main">
+      <div class="wl-host">
+        <span class="wl-avatar"><%= (listing.owner && listing.owner.username ? listing.owner.username : '?').charAt(0).toUpperCase() %></span>
+        <div>
+          <p class="wl-host-name">Hosted by <%= listing.owner && listing.owner.username ? listing.owner.username : "Unknown" %></p>
+          <p class="wl-muted">Your host for this stay</p>
         </div>
-        <button type="submit" class="btn btn-dark mt-3">Submit Review</button>
-      </form>
-    <% } else { %>
-      <div class="guest-review-card">
-        <p class="text-muted mb-0">Please log in to leave a review.</p>
       </div>
-    <% } %>
 
-    <hr />
+      <h2 class="wl-h2">About this place</h2>
+      <p class="wl-desc"><%= listing.description %></p>
 
-    <div class="review-section-head">
-      <p class="mb-0"><b>All Reviews (<%= listing.reviews.length %>)</b></p>
-      <span class="review-section-note">Visible to everyone</span>
+      <% if (isOwner) { %>
+        <div class="wl-owner">
+          <p class="wl-muted">This is your listing.</p>
+          <div class="wl-actions">
+            <a href="/listings/<%= listing._id %>/edit" class="wl-btn ghost"><i class="fa-regular fa-pen-to-square"></i>Edit listing</a>
+            <form method="POST" action="/listings/<%= listing._id %>?_method=DELETE" onsubmit="return confirm('Delete this listing? This can\'t be undone.');">
+              <button class="wl-btn danger"><i class="fa-regular fa-trash-can"></i>Delete listing</button>
+            </form>
+          </div>
+        </div>
+      <% } %>
+
+      <% if (listing.bookings && listing.bookings.some(b => b.status !== 'cancelled')) { %>
+      <section class="wl-section">
+        <h2 class="wl-h2">Current bookings</h2>
+        <div id="bookingsList" class="wl-bookings">
+          <% listing.bookings.forEach(function(booking) { %>
+            <% if (booking.status !== 'cancelled') { %>
+              <div class="wl-booking">
+                <span class="wl-avatar sm"><%= (booking.user && booking.user.username ? booking.user.username : '?').charAt(0).toUpperCase() %></span>
+                <div>
+                  <p class="wl-booking-who"><%= booking.user && booking.user.username ? booking.user.username : 'Guest' %></p>
+                  <p class="wl-muted"><%= new Date(booking.startDate).toLocaleDateString('en-GB') %> <%= new Date(booking.startDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) %> to <%= new Date(booking.endDate).toLocaleDateString('en-GB') %> <%= new Date(booking.endDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}) %></p>
+                </div>
+                <span class="wl-status"><%= booking.status %></span>
+              </div>
+            <% } %>
+          <% }); %>
+        </div>
+      </section>
+      <% } %>
     </div>
 
-    <div class="row">
-    <% if (listing.reviews.length > 0) { %>
-      <% for(review of listing.reviews) { %>
-        <div class="col-6 mb-3">
-          <div class="review-card">
-            <div class="review-meta">
-              <h5 class="review-author">
-                <%= review.author && review.author.username ? review.author.username : "Anonymous" %>
-              </h5>
-               <p class="starability-result card-text" data-rating="<%= review.rating %>"></p>
+    <aside class="wl-book">
+      <p class="wl-book-price"><span class="show-chip listing-price" data-base-price="<%= listing.price || 0 %>">&#8377;<%= (listing.price || 0).toLocaleString("en-IN") %></span> <span class="wl-muted">a night</span></p>
+      <p class="wl-slots"><span id="availableSlots"><%= maxSlots - taken %></span><span>/ <%= maxSlots %></span> slots open <span id="slotStatus"></span></p>
+
+      <% if (currentUser) { %>
+        <div id="bookingFormContainer">
+          <form action="/listings/<%= listing._id %>/book" method="POST" class="booking-form">
+            <div class="wl-book-fields">
+              <label>Check-in date<input type="date" class="form-control" id="startDate" name="startDate" required></label>
+              <label>Time<input type="time" class="form-control" id="startTime" name="startTime" required></label>
+              <label>Check-out date<input type="date" class="form-control" id="endDate" name="endDate" required></label>
+              <label>Time<input type="time" class="form-control" id="endTime" name="endTime" required></label>
             </div>
-            <p class="review-comment mb-0">
-              <%= review.comment %>
-            </p>
+            <button type="submit" class="wl-btn primary block">Book this stay</button>
+          </form>
+        </div>
+        <div id="noSlotsMessage" class="wl-note warn" style="display: none;">
+          <strong>Fully booked</strong>
+          <p>Every slot for this stay is taken. Check back later.</p>
+        </div>
+        <div id="bookingStatus"></div>
+      <% } else { %>
+        <a class="wl-btn primary block" href="/login">Log in to book</a>
+        <p class="wl-muted small">You need an account to book. <a href="/signup">Sign up</a> takes a minute.</p>
+      <% } %>
+    </aside>
+  </div>
+
+  <section class="wl-section wl-reviews">
+    <div class="wl-section-head">
+      <h2 class="wl-h2"><%= listing.reviews.length ? 'Reviews (' + listing.reviews.length + ')' : 'Reviews' %></h2>
+    </div>
+
+    <% if (listing.reviews.length > 0) { %>
+      <div class="wl-review-grid">
+        <% for (review of listing.reviews) { %>
+          <div class="wl-review">
+            <div class="wl-review-top">
+              <span class="wl-avatar sm"><%= (review.author && review.author.username ? review.author.username : 'A').charAt(0).toUpperCase() %></span>
+              <p class="wl-review-who"><%= review.author && review.author.username ? review.author.username : "Anonymous" %></p>
+              <p class="starability-result" data-rating="<%= review.rating %>">Rated <%= review.rating %> stars</p>
+            </div>
+            <p class="wl-review-text"><%= review.comment %></p>
             <% if (currentUser && review.author && review.author._id && currentUser._id.toString() === review.author._id.toString()) { %>
-              <div class="review-actions mb-0 d-flex gap-2">
-                <a class="btn btn-dark" href="/listings/<%=listing._id%>/reviews/<%=review._id%>/edit">Edit</a>
-                <form method="POST" action="/listings/<%=listing._id%>/reviews/<%=review._id%>?_method=DELETE">
-                  <button class="btn btn-dark">Delete</button>
+              <div class="wl-actions sm">
+                <a class="wl-btn ghost sm" href="/listings/<%= listing._id %>/reviews/<%= review._id %>/edit">Edit</a>
+                <form method="POST" action="/listings/<%= listing._id %>/reviews/<%= review._id %>?_method=DELETE">
+                  <button class="wl-btn ghost sm">Delete</button>
                 </form>
               </div>
             <% } %>
           </div>
-        </div>
-      <% } %>
-    <% } else { %>
-      <div class="col-12">
-        <div class="guest-review-card">
-          <p class="text-muted mb-0">No reviews yet. Be the first to review this listing.</p>
-        </div>
+        <% } %>
       </div>
+    <% } else { %>
+      <p class="wl-muted">No reviews yet. Stayed here? Be the first to share how it went.</p>
     <% } %>
-</div>
-  </div>
-  <div class="col-8 offset-3 mb-3">
-  <h3>Where you'll be</h3>
-  <div id="map" style="height: 400px; width: 100%;"></div>
-</div>
-  </div>
+
+    <% if (currentUser) { %>
+      <form action="/listings/<%= listing._id %>/reviews" method="POST" novalidate class="needs-validation wl-card wl-review-form">
+        <h3 class="wl-h3">Leave a review</h3>
+        <fieldset class="starability-growRotate">
+          <legend>Your rating</legend>
+          <input type="radio" id="no-rate" class="input-no-rate" name="review[rating]" value="0" checked aria-label="No rating." />
+          <input type="radio" id="first-rate1" name="review[rating]" value="1" />
+          <label for="first-rate1" title="Terrible">1 star</label>
+          <input type="radio" id="first-rate2" name="review[rating]" value="2" />
+          <label for="first-rate2" title="Not good">2 stars</label>
+          <input type="radio" id="first-rate3" name="review[rating]" value="3" />
+          <label for="first-rate3" title="Average">3 stars</label>
+          <input type="radio" id="first-rate4" name="review[rating]" value="4" />
+          <label for="first-rate4" title="Very good">4 stars</label>
+          <input type="radio" id="first-rate5" name="review[rating]" value="5" />
+          <label for="first-rate5" title="Amazing">5 stars</label>
+        </fieldset>
+        <label for="comment" class="form-label">Your review</label>
+        <textarea id="comment" name="review[comment]" rows="4" class="form-control" placeholder="What was the stay like?" required></textarea>
+        <div class="invalid-feedback">Write a few words about your stay.</div>
+        <button type="submit" class="wl-btn primary">Post review</button>
+      </form>
+    <% } else { %>
+      <p class="wl-muted"><a href="/login">Log in</a> to leave a review.</p>
+    <% } %>
+  </section>
+
+  <section class="wl-section">
+    <h2 class="wl-h2">Where you'll be</h2>
+    <p class="wl-muted"><%= [listing.location, listing.country].filter(Boolean).join(', ') %></p>
+    <div id="map" class="wl-map"></div>
+  </section>
+</article>
 <script src="/js/map.js"></script>
 <script src="/socket.io/socket.io.js"></script>
 <script>
@@ -257,12 +211,12 @@
     
     if (slotStatusElement) {
       if (availableSlots === 0) {
-        slotStatusElement.textContent = '(Fully Booked)';
-        slotStatusElement.style.color = '#dc3545';
+        slotStatusElement.textContent = 'Fully booked';
+        slotStatusElement.style.color = '#c0392b';
         slotStatusElement.style.fontWeight = '600';
       } else if (availableSlots <= 3) {
-        slotStatusElement.textContent = '(Limited Availability)';
-        slotStatusElement.style.color = '#ffc107';
+        slotStatusElement.textContent = 'Filling up';
+        slotStatusElement.style.color = '#c2410c';
         slotStatusElement.style.fontWeight = '600';
       } else {
         slotStatusElement.textContent = '';
@@ -299,23 +253,15 @@
     if (!bookingsList) return;
     
     const bookingItem = document.createElement('div');
-    bookingItem.className = 'booking-item p-3 mb-2 border rounded';
-    bookingItem.style = 'background-color: white; border-left: 3px solid #28a745;';
+    bookingItem.className = 'wl-booking';
+    const fmt = d => new Date(d).toLocaleDateString('en-GB') + ' ' + new Date(d).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'});
     bookingItem.innerHTML = `
-      <div style="font-size: 14px;">
-        <div style="margin-bottom: 5px;">
-          <strong style="color: #333;">👤 User:</strong> 
-          <span style="color: #666;">Current User</span>
-        </div>
-        <div style="margin-bottom: 5px;">
-          <strong style="color: #333;">📅 Dates:</strong> 
-          <span style="color: #666;">${new Date(booking.startDate).toLocaleDateString('en-GB')} ${new Date(booking.startDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})} - ${new Date(booking.endDate).toLocaleDateString('en-GB')} ${new Date(booking.endDate).toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'})}</span>
-        </div>
-        <div>
-          <strong style="color: #333;">✅ Status:</strong> 
-          <span style="color: #28a745; font-weight: 600;">${booking.status}</span>
-        </div>
+      <span class="wl-avatar sm">+</span>
+      <div>
+        <p class="wl-booking-who">New booking</p>
+        <p class="wl-muted">${fmt(booking.startDate)} to ${fmt(booking.endDate)}</p>
       </div>
+      <span class="wl-status">${booking.status}</span>
     `;
     
     bookingsList.appendChild(bookingItem);
@@ -332,12 +278,11 @@
   function showNotification(message) {
     const bookingStatus = document.getElementById('bookingStatus');
     if (bookingStatus) {
-      bookingStatus.innerHTML = `<div class="alert alert-info">${message}</div>`;
+      bookingStatus.innerHTML = `<div class="wl-note">${message}</div>`;
       setTimeout(() => {
         bookingStatus.innerHTML = '';
       }, 3000);
     }
   }
 </script>
-  </body>
-</html>
+

@@ -18,6 +18,7 @@
       try { seen = sessionStorage.getItem('wlIntroSeen') === '1'; } catch (e) {}
       var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       if (!seen && !reduce) document.documentElement.classList.add('intro-on');
+      try { if (localStorage.getItem('darkModeEnabled') === 'true') document.documentElement.classList.add('dark-mode'); } catch (e) {}
     })();
   </script>
 </head>

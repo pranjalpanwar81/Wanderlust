@@ -45,7 +45,7 @@
     
     <div class="filter-actions">
       <div class="tax-toggle-wrapper">
-        <label class="tax-toggle-label">Display total after taxes</label>
+        <label class="tax-toggle-label" for="taxToggle">Show total with taxes</label>
         <label class="tax-switch">
           <input type="checkbox" id="taxToggle">
           <span class="tax-slider"></span>
@@ -55,7 +55,7 @@
       <div class="sort-dropdown">
         <button class="sort-btn" id="sortBtn">
           <i class="fa-solid fa-sort"></i>
-          <span>Sort by</span>
+          <span>Sort</span>
         </button>
         <div class="sort-menu" id="sortMenu">
           <div class="sort-option" data-sort="default">Default</div>
@@ -68,7 +68,7 @@
       <div class="price-filter">
         <button class="price-btn" id="priceBtn">
           <i class="fa-solid fa-sliders"></i>
-          <span>Price Range</span>
+          <span>Price</span>
         </button>
         <div class="price-menu" id="priceMenu">
           <div class="price-inputs">
@@ -88,431 +88,7 @@
   </div>
 </div>
 
-<style>
-.filters-container {
-  border-bottom: 1px solid #e0e0e0;
-  background: white;
-  position: fixed;
-  top: 56px;
-  left: 0;
-  right: 0;
-  z-index: 1020;
-  padding: 0 20px;
-  height: 60px;
-}
 
-.filters-wrapper {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding: 8px 0;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  align-items: center;
-  flex: 1;
-}
-
-.filter-items-scroll {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  align-items: center;
-  flex: 1;
-}
-
-.filter-items-scroll::-webkit-scrollbar {
-  display: none;
-}
-
-.filter-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-shrink: 0;
-  margin-left: 12px;
-}
-
-.tax-toggle-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  background: white;
-  border-radius: 16px;
-  border: 1px solid #e0e0e0;
-}
-
-.tax-toggle-label {
-  font-size: 11px;
-  font-weight: 500;
-  color: #333;
-  white-space: nowrap;
-  margin: 0;
-}
-
-.tax-switch {
-  position: relative;
-  display: inline-block;
-  width: 36px;
-  height: 20px;
-  margin: 0;
-}
-
-.tax-switch input {
-  opacity: 0;
-  width: 0;
-  height: 0;
-}
-
-.tax-slider {
-  position: absolute;
-  cursor: pointer;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-color: #ccc;
-  transition: .4s;
-  border-radius: 20px;
-}
-
-.tax-slider:before {
-  position: absolute;
-  content: "";
-  height: 16px;
-  width: 16px;
-  left: 2px;
-  bottom: 2px;
-  background-color: white;
-  transition: .4s;
-  border-radius: 50%;
-}
-
-.tax-switch input:checked + .tax-slider {
-  background-color: #ff5722;
-}
-
-.tax-switch input:checked + .tax-slider:before {
-  transform: translateX(16px);
-}
-
-.filter-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 6px 12px;
-  min-width: 70px;
-  border-radius: 16px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  border: 1px solid transparent;
-  background: #f7f7f7;
-  color: #717171;
-  text-decoration: none;
-  flex-shrink: 0;
-}
-
-.filter-item i {
-  font-size: 16px;
-  margin-bottom: 3px;
-  color: #717171;
-  transition: color 0.3s ease;
-}
-
-.filter-item span {
-  font-size: 11px;
-  font-weight: 500;
-  white-space: nowrap;
-}
-
-.sort-dropdown,
-.price-filter {
-  position: relative;
-  flex-shrink: 0;
-}
-
-.sort-dropdown .sort-menu,
-.price-filter .price-menu {
-  position: fixed;
-  z-index: 9999;
-}
-
-.sort-btn,
-.price-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 16px;
-  background: white;
-  cursor: pointer;
-  font-size: 11px;
-  color: #333;
-  transition: all 0.3s ease;
-  white-space: nowrap;
-}
-
-.sort-btn:hover,
-.price-btn:hover {
-  background: #f5f5f5;
-  border-color: #d0d0d0;
-}
-
-.sort-btn i,
-.price-btn i {
-  font-size: 12px;
-}
-
-.filter-item:hover {
-  background: #e7e7e7;
-  color: #222222;
-  transform: translateY(-2px);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.filter-item:hover i {
-  color: #222222;
-}
-
-.filter-item.active {
-  background: #333333;
-  color: white;
-  border-color: #333333;
-}
-
-.filter-item.active i {
-  color: white;
-}
-
-.filter-item.active:hover {
-  background: #444444;
-  color: white;
-}
-
-.sort-menu,
-.price-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  margin-top: 8px;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  min-width: 200px;
-  z-index: 9999;
-  display: none;
-  padding: 8px 0;
-}
-
-.sort-menu.show,
-.price-menu.show {
-  display: block;
-}
-
-.sort-option {
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: 14px;
-}
-
-.sort-option:hover {
-  background: #f5f5f5;
-}
-
-.sort-option.active {
-  background: #e7e7e7;
-  font-weight: 500;
-}
-
-.price-inputs {
-  padding: 12px 16px;
-  display: flex;
-  gap: 12px;
-}
-
-.price-input-group {
-  flex: 1;
-}
-
-.price-input-group label {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.price-input-group input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.price-input-group input:focus {
-  outline: none;
-  border-color: #222;
-}
-
-.apply-price-btn {
-  width: calc(100% - 32px);
-  margin: 0 16px 12px;
-  padding: 10px;
-  background: #222;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 0.3s ease;
-}
-
-.apply-price-btn:hover {
-  background: #333;
-}
-
-@media (max-width: 768px) {
-  .filter-item {
-    min-width: 70px;
-    padding: 6px 12px;
-  }
-  
-  .filter-item i {
-    font-size: 16px;
-  }
-  
-  .filter-item span {
-    font-size: 10px;
-  }
-}
-
-.sort-filter-section {
-  display: flex;
-  gap: 8px;
-  padding: 6px 0;
-  border-top: 1px solid #e0e0e0;
-  margin-top: 6px;
-}
-
-.sort-dropdown,
-.price-filter {
-  position: relative;
-}
-
-.sort-btn,
-.price-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  padding: 6px 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 16px;
-  background: white;
-  cursor: pointer;
-  font-size: 13px;
-  color: #333;
-  transition: all 0.3s ease;
-}
-
-.sort-btn:hover,
-.price-btn:hover {
-  background: #f5f5f5;
-  border-color: #d0d0d0;
-}
-
-.sort-btn i,
-.price-btn i {
-  font-size: 12px;
-}
-
-.sort-menu.show,
-.price-menu.show {
-  display: block;
-}
-
-.sort-option {
-  padding: 10px 16px;
-  cursor: pointer;
-  transition: background 0.2s ease;
-  font-size: 14px;
-}
-
-.sort-option:hover {
-  background: #f5f5f5;
-}
-
-.sort-option.active {
-  background: #e7e7e7;
-  font-weight: 500;
-}
-
-.price-inputs {
-  padding: 12px 16px;
-  display: flex;
-  gap: 12px;
-}
-
-.price-input-group {
-  flex: 1;
-}
-
-.price-input-group label {
-  display: block;
-  font-size: 12px;
-  color: #666;
-  margin-bottom: 4px;
-}
-
-.price-input-group input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 14px;
-}
-
-.price-input-group input:focus {
-  outline: none;
-  border-color: #222;
-}
-
-.apply-price-btn {
-  width: calc(100% - 32px);
-  margin: 0 16px 12px;
-  padding: 10px;
-  background: #222;
-  color: white;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  transition: background 0.3s ease;
-}
-
-.apply-price-btn:hover {
-  background: #333;
-}
-
-@media (max-width: 768px) {
-  .sort-filter-section {
-    flex-wrap: wrap;
-  }
-  
-  .sort-dropdown,
-  .price-filter {
-    flex: 1;
-    min-width: 140px;
-  }
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -573,10 +149,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (withTax) {
           const taxAmount = basePrice * 0.18;
           const totalPrice = basePrice + taxAmount;
-          element.textContent = '₹' + totalPrice.toLocaleString('en-IN') + ' /night';
+          element.textContent = '₹' + totalPrice.toLocaleString('en-IN');
           element.setAttribute('title', 'Includes 18% GST');
         } else {
-          element.textContent = '₹' + basePrice.toLocaleString('en-IN') + ' /night';
+          element.textContent = '₹' + basePrice.toLocaleString('en-IN');
           element.setAttribute('title', 'Before taxes');
         }
       }
@@ -622,7 +198,7 @@ document.addEventListener('DOMContentLoaded', function() {
         leftPos = screenWidth - menuWidth - 20;
       }
       
-      sortMenu.style.top = (rect.bottom + window.scrollY) + 'px';
+      sortMenu.style.top = (rect.bottom + 8) + 'px';
       sortMenu.style.left = leftPos + 'px';
     }
   });
@@ -646,7 +222,7 @@ document.addEventListener('DOMContentLoaded', function() {
         leftPos = screenWidth - menuWidth - 20;
       }
       
-      priceMenu.style.top = (rect.bottom + window.scrollY) + 'px';
+      priceMenu.style.top = (rect.bottom + 8) + 'px';
       priceMenu.style.left = leftPos + 'px';
     }
   });

@@ -11,6 +11,16 @@
   --display: "Unbounded", "Plus Jakarta Sans", system-ui, sans-serif;
   --body: "Plus Jakarta Sans", system-ui, sans-serif;
 }
+html.dark-mode {
+  --ink: #e8eef7;
+  --slate: #9aabc2;
+  --mist: #0e1729;
+  --paper: #16223a;
+  --line: #2a3a58;
+  color-scheme: dark;
+}
+html.dark-mode .host-inner { background: #16223a; border: 1px solid var(--line); }
+html.dark-mode .tile figcaption { background: rgba(14,23,41,.88); color: #e8eef7; }
 
 *, *::before, *::after { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -122,8 +132,8 @@ a { color: inherit; }
 .topnav { display: flex; align-items: center; gap: 6px; }
 .topnav a { text-decoration: none; font-weight: 600; font-size: .95rem; padding: 8px 12px; border-radius: 999px; }
 .topnav a:hover { background: var(--paper); }
-.topnav a.pill { background: var(--ink); color: #fff; padding: 8px 18px; }
-.topnav a.pill:hover { background: #22375e; }
+.topnav a.pill { background: var(--ink); color: var(--mist); padding: 8px 18px; }
+.topnav a.pill:hover { opacity: .88; }
 
 /* ---------- Hero ---------- */
 .hero {
@@ -153,10 +163,10 @@ a { color: inherit; }
 .search input::placeholder { color: #8796aa; }
 .search:focus-within { border-color: var(--ink); }
 .search button {
-  border: 0; border-radius: 999px; background: var(--ink); color: #fff;
+  border: 0; border-radius: 999px; background: var(--ink); color: var(--mist);
   font: 600 .95rem var(--body); padding: 12px 22px; cursor: pointer;
 }
-.search button:hover { background: #22375e; }
+.search button:hover { opacity: .88; }
 
 .hero-actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 22px; }
 .btn {
@@ -167,7 +177,7 @@ a { color: inherit; }
 .btn.primary { background: var(--brand); color: #fff; }
 .btn.primary:hover { background: var(--brand-deep); }
 .btn.ghost { border-color: var(--ink); }
-.btn.ghost:hover { background: var(--ink); color: #fff; }
+.btn.ghost:hover { background: var(--ink); color: var(--mist); }
 .count { margin: 28px 0 0; color: var(--slate); font-size: .95rem; }
 
 /* Collage of real listing photos */
